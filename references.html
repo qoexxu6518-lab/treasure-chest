@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参考游戏截图 — 宝箱系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #ffffff;
+  color: #2c2c2c;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+  padding: 0 0 48px;
+}
+
+/* 深色标题栏 */
+.page-header {
+  background: #16161e;
+  padding: 24px 32px 20px;
+  margin-bottom: 36px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.32);
+}
+.page-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.page-header-left {}
+.page-header h1 {
+  color: #f0e6c8;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+.page-header .subtitle {
+  color: rgba(240,230,200,0.6);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  border: 1px solid rgba(200,168,78,0.4);
+  border-radius: 8px;
+  color: #c8a84e;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: bold;
+  background: rgba(200,168,78,0.06);
+  transition: background 0.18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.back-link:hover { background: rgba(200,168,78,0.16); }
+
+/* 游戏快捷导航 */
+.page-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.page-nav-btn {
+  padding: 5px 14px;
+  border-radius: 5px;
+  border: 1px solid rgba(200,168,78,0.28);
+  color: rgba(200,168,78,0.7);
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
+}
+.page-nav-btn:hover {
+  border-color: #c8a84e;
+  color: #c8a84e;
+  background: rgba(200,168,78,0.1);
+}
+
+/* 内容区 */
+.page-content { padding: 0 32px; }
+.section { margin-bottom: 48px; }
+
+/* 分组标题 */
+.section-title {
+  font-size: 17px;
+  color: #2c1e08;
+  font-weight: bold;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #c8a84e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 18px;
+  background: #c8a84e;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* 图片网格 */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+/* 图片卡片 */
+.image-card {
+  background: #f5f3ee;
+  border: 1px solid #e0d8c8;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.image-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.image-card img {
+  width: 100%;
+  display: block;
+  cursor: zoom-in;
+  transition: opacity 0.18s;
+}
+.image-card img:hover { opacity: 0.92; }
+.image-card .caption {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #5a4830;
+  font-weight: bold;
+  border-top: 1px solid #e8e0d0;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 95vw;
+  max-height: 95vh;
+  object-fit: contain;
+  cursor: default;
+  user-select: none;
+  border-radius: 4px;
+}
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.18s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+
+<!-- 深色标题栏 -->
+<div class="page-header">
+  <div class="page-header-top">
+    <div class="page-header-left">
+      <h1>参考游戏截图 · 宝箱系统</h1>
+      <p class="subtitle">以下为设计参考游戏的宝箱系统截图，供策划 / UI 设计师查阅</p>
+    </div>
+    <a class="back-link" href="index.html">← 返回交互文档</a>
+  </div>
+  <div class="page-nav">
+    <button class="page-nav-btn" onclick="scrollTo('sec-xianyu')">咸鱼之王</button>
+  </div>
+</div>
+
+<!-- 内容区 -->
+<div class="page-content">
+
+  <!-- 咸鱼之王 -->
+  <div class="section" id="sec-xianyu">
+    <div class="section-title">咸鱼之王 — 宝箱系统</div>
+    <div class="image-grid">
+      <div class="image-card">
+        <img src="references/咸鱼之王/咸鱼之王-宝箱界面.jpg" onclick="openLB(this.src)" alt="咸鱼之王-宝箱界面">
+        <div class="caption">宝箱主界面</div>
+      </div>
+      <div class="image-card">
+        <img src="references/咸鱼之王/咸鱼之王-宝箱开启动画.jpg" onclick="openLB(this.src)" alt="咸鱼之王-宝箱开启动画">
+        <div class="caption">宝箱开启动画</div>
+      </div>
+      <div class="image-card">
+        <img src="references/咸鱼之王/咸鱼之王-奖励界面.jpg" onclick="openLB(this.src)" alt="咸鱼之王-奖励界面">
+        <div class="caption">奖励展示界面</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 皇室战争的宝箱界面实为《攻城掠地 SLG 活动》领奖界面动效参考，已转移至该文档。宝箱仓库仅以《咸鱼之王》为参考 -->
+
+</div><!-- /page-content -->
+
+<!-- Lightbox 放大弹窗 -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLB()">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<script>
+/* 截图快捷滚动 */
+function scrollTo(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  window.scrollTo({ top: el.offsetTop - 120, behavior: 'smooth' });
+}
+
+/* Lightbox */
+var lbScale = 1, lbDrag = false, lbSX, lbSY, lbTX = 0, lbTY = 0;
+
+function openLB(src) {
+  var lb  = document.getElementById('lightbox');
+  var img = document.getElementById('lb-img');
+  img.src = src;
+  lbScale = 1; lbTX = 0; lbTY = 0;
+  img.style.transform = '';
+  lb.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLB() {
+  document.getElementById('lightbox').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+(function () {
+  var lb  = document.getElementById('lightbox');
+  var img = document.getElementById('lb-img');
+
+  lb.addEventListener('click', function (e) { if (e.target === lb) closeLB(); });
+
+  lb.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    lbScale = Math.max(0.2, Math.min(10, lbScale * (e.deltaY > 0 ? 0.9 : 1.1)));
+    img.style.transform = 'scale(' + lbScale + ') translate(' + (lbTX / lbScale) + 'px,' + (lbTY / lbScale) + 'px)';
+  }, { passive: false });
+
+  img.addEventListener('mousedown', function (e) {
+    e.preventDefault();
+    lbDrag = true; lbSX = e.clientX - lbTX; lbSY = e.clientY - lbTY;
+    img.style.cursor = 'grabbing';
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (!lbDrag) return;
+    lbTX = e.clientX - lbSX; lbTY = e.clientY - lbSY;
+    img.style.transform = 'scale(' + lbScale + ') translate(' + (lbTX / lbScale) + 'px,' + (lbTY / lbScale) + 'px)';
+  });
+  document.addEventListener('mouseup', function () {
+    if (lbDrag) { lbDrag = false; img.style.cursor = 'default'; }
+  });
+
+  /* ESC 关闭 */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeLB();
+  });
+})();
+</script>
+</body>
+</html>
