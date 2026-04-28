@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>宝箱系统 · 交互文档 v0.5</title>
+<title>宝箱系统 · 交互文档 v0.7</title>
 <style>
 /* ═══════════════════════════════ 基础重置 ═══════════════════════════════ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1410,6 +1410,7 @@ body.phase-preview .main-brief-rules { display: block; }
   letter-spacing: 4px;
   color: #fff6e5;
   text-shadow: 0 2px 0 rgba(40,16,10,0.45);
+  text-align: center;
 }
 
 /* ─── 积分进度条 ─── */
@@ -1474,6 +1475,21 @@ body.phase-preview .main-brief-rules { display: block; }
   background: linear-gradient(180deg, #6a2018 0%, #8c2c22 100%);
   overflow: hidden;
 }
+.cv-score-bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.7);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 2;
+}
 .cv-score-bar-fill {
   position: absolute;
   top: 0; left: 0; bottom: 0;
@@ -1504,10 +1520,12 @@ body.phase-preview .main-brief-rules { display: block; }
   padding: 6px 4px 8px;
   box-shadow: inset 0 -4px 8px rgba(70,52,8,0.22), 0 6px 12px rgba(0,0,0,0.14);
   font-family: inherit;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
-.cv-score-cta:disabled {
-  filter: grayscale(0.5) brightness(0.85);
-  cursor: not-allowed;
+.cv-score-cta:not(.ready) {
+  background: linear-gradient(180deg, #8a8a8a 0%, #5e5e5e 100%);
+  border-color: rgba(40,40,40,0.55);
+  cursor: default;
 }
 .cv-score-cta-chest {
   width: 36px; height: 26px;
@@ -2461,6 +2479,447 @@ body.phase-preview .main-brief-rules { display: block; }
   color: rgba(74,38,4,0.62);
   text-align: center;
 }
+
+/* ─── 左上角宝箱等级徽章 ─── */
+.cv-title-bar { position: relative; }
+.cv-level-badge {
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px 5px 8px;
+  background: linear-gradient(180deg, #f1bf52 0%, #c98a25 100%);
+  border: 2px solid rgba(80,40,4,0.55);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: inset 0 -3px 6px rgba(120,68,8,0.32), 0 4px 8px rgba(0,0,0,0.2);
+  z-index: 3;
+  transition: transform 0.18s;
+}
+.cv-level-badge:hover { transform: translateY(-1px); }
+.cv-level-badge:active { transform: translateY(0); }
+.cv-level-badge-key {
+  font-size: 11px;
+  font-weight: 900;
+  color: #6a3805;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 0 rgba(255,240,200,0.45);
+}
+.cv-level-badge-num {
+  font-size: 18px;
+  font-weight: 900;
+  color: #4a2604;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(255,240,200,0.5);
+}
+.cv-level-badge-dot {
+  position: absolute;
+  top: -6px; right: -6px;
+  min-width: 16px; height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #e8443c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  display: none;
+  align-items: center; justify-content: center;
+  border: 1.5px solid #fff;
+  box-shadow: 0 2px 4px rgba(232,68,60,0.5);
+  animation: cvLevelDotPulse 1.4s ease-in-out infinite;
+}
+.cv-level-badge.has-up .cv-level-badge-dot { display: flex; }
+@keyframes cvLevelDotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.16); }
+}
+
+/* 积分循环刻度（5 段在 bar 上的虚拟分隔感，仅装饰） */
+.cv-score-bar-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ─── 宝箱等级查看 overlay ─── */
+.cv-levelinfo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(20,8,8,0.72);
+  display: none;
+  z-index: 60;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 14px;
+  backdrop-filter: blur(2px);
+}
+.cv-levelinfo-overlay.active { display: flex; }
+.cv-levelinfo-card {
+  width: 100%;
+  max-width: 380px;
+  max-height: 100%;
+  background: linear-gradient(180deg, #fff5e2 0%, #f4e0bb 100%);
+  border: 3px solid #6c4135;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.cv-levelinfo-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, #6c4135 0%, #5a352b 100%);
+  flex-shrink: 0;
+}
+.cv-levelinfo-title {
+  color: #fff6e5;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+.cv-levelinfo-close {
+  width: 28px; height: 28px;
+  border: none;
+  background: rgba(255,255,255,0.16);
+  color: #fff6e5;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.cv-levelinfo-body {
+  padding: 14px 16px 16px;
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+}
+.cv-levelinfo-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #fff8e9 0%, #f7e3b6 100%);
+  border: 2px solid #d6b06e;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.cv-levelinfo-banner-left {
+  flex-shrink: 0;
+  text-align: center;
+}
+.cv-levelinfo-banner-key {
+  font-size: 10px;
+  color: #8a5a14;
+  margin-bottom: 2px;
+}
+.cv-levelinfo-banner-lv {
+  font-size: 22px;
+  font-weight: 900;
+  color: #5a3300;
+  line-height: 1;
+}
+.cv-levelinfo-banner-mid {
+  flex: 1;
+  min-width: 0;
+}
+.cv-levelinfo-banner-xp-text {
+  font-size: 11px;
+  color: #5a3300;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.cv-levelinfo-banner-xp-bar {
+  position: relative;
+  height: 12px;
+  border-radius: 8px;
+  border: 2px solid #6a4018;
+  background: #5a3a1c;
+  overflow: hidden;
+}
+.cv-levelinfo-banner-xp-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: linear-gradient(90deg, #ffd86b 0%, #f1a82c 100%);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+.cv-levelinfo-banner-xp-tip {
+  margin-top: 4px;
+  font-size: 10px;
+  color: rgba(74,38,4,0.62);
+}
+.cv-levelinfo-up-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 2px solid rgba(80,40,4,0.5);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #cad968 0%, #a4b034 100%);
+  color: #5b3608;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: inset 0 -3px 5px rgba(70,52,8,0.22), 0 4px 8px rgba(0,0,0,0.14);
+}
+.cv-levelinfo-up-btn:disabled {
+  filter: grayscale(0.6) brightness(0.85);
+  cursor: not-allowed;
+}
+.cv-levelinfo-up-btn.ready {
+  animation: cvUpBtnShake 0.9s ease-in-out infinite;
+}
+@keyframes cvUpBtnShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+.cv-levelinfo-season {
+  font-size: 11px;
+  color: #6a3a04;
+  background: rgba(232,200,128,0.4);
+  border-left: 3px solid #c98a25;
+  padding: 8px 10px;
+  border-radius: 6px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.cv-levelinfo-section-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #5a3300;
+  margin: 4px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(108,65,53,0.32);
+}
+.cv-levelinfo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+  padding-right: 4px;
+  scrollbar-width: none; /* Firefox 隐藏滚动条 */
+}
+.cv-levelinfo-list::-webkit-scrollbar { width: 0; height: 0; display: none; } /* WebKit 隐藏 */
+.cv-levelinfo-list.dragging { cursor: grabbing; }
+.cv-levelinfo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 10px 8px;
+  background: rgba(255,255,255,0.55);
+  border: 1.5px solid rgba(108,65,53,0.22);
+  border-radius: 10px;
+}
+.cv-levelinfo-row.current {
+  background: rgba(176,212,108,0.42);
+  border-color: #6c8a2e;
+  box-shadow: 0 2px 6px rgba(108,138,46,0.22);
+}
+.cv-levelinfo-row.locked { opacity: 0.45; }
+.cv-levelinfo-row-lv {
+  flex-shrink: 0;
+  width: 38px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 900;
+  color: #5a3300;
+}
+.cv-levelinfo-row-cycle {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+}
+.cv-levelinfo-mini-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.cv-levelinfo-mini-wrap:hover { transform: translateY(-1px); }
+.cv-levelinfo-mini-wrap:active { transform: translateY(0); }
+.cv-levelinfo-mini-cost {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #7a4a10;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: -0.2px;
+}
+.cv-levelinfo-mini {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.2 / 1;
+  border-radius: 5px 5px 4px 4px;
+  border: 1.5px solid rgba(40,18,8,0.4);
+  box-shadow: inset 0 -2px 3px rgba(0,0,0,0.22);
+  margin-top: 4px;
+}
+.cv-levelinfo-mini .cv-mini-lid {
+  position: absolute;
+  left: 2px; right: 2px; top: -5px;
+  height: 8px;
+  border-radius: 4px 4px 2px 2px;
+  border: 1.5px solid rgba(40,18,8,0.42);
+}
+.cv-levelinfo-mini.q-white  .cv-mini-lid { background: linear-gradient(180deg, #cdc3b9 0%, #aea59d 100%); }
+.cv-levelinfo-mini.q-green  .cv-mini-lid { background: linear-gradient(180deg, #6cc97c 0%, #3c8d56 100%); }
+.cv-levelinfo-mini.q-blue   .cv-mini-lid { background: linear-gradient(180deg, #5e92e6 0%, #3464a8 100%); }
+.cv-levelinfo-mini.q-purple .cv-mini-lid { background: linear-gradient(180deg, #b27adb 0%, #8049b0 100%); }
+.cv-levelinfo-mini.q-orange .cv-mini-lid { background: linear-gradient(180deg, #ffb654 0%, #d27a1f 100%); }
+.cv-levelinfo-mini .cv-mini-lock {
+  position: absolute;
+  left: 50%; top: 3px;
+  width: 6px; height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(70,30,10,0.36);
+}
+.cv-levelinfo-mini.q-white  .cv-mini-lock { background: #f3f0eb; }
+.cv-levelinfo-mini.q-green  .cv-mini-lock { background: #b7f3c6; }
+.cv-levelinfo-mini.q-blue   .cv-mini-lock { background: #d0e2ff; }
+.cv-levelinfo-mini.q-purple .cv-mini-lock { background: #ecd1ff; }
+.cv-levelinfo-mini.q-orange .cv-mini-lock { background: #ffe3b3; }
+.cv-levelinfo-row-tag {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: rgba(74,38,4,0.78);
+  font-weight: bold;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+  text-align: right;
+}
+.cv-levelinfo-row.locked .cv-levelinfo-row-tag {
+  color: #9a4a1a;
+}
+.cv-levelinfo-footnote {
+  margin-top: 12px;
+  font-size: 10px;
+  color: rgba(74,38,4,0.62);
+  text-align: center;
+}
+.cv-levelinfo-effect {
+  margin: 6px 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(74,38,4,0.78);
+  text-align: center;
+  padding: 6px 8px;
+  background: rgba(255,224,160,0.42);
+  border: 1.5px dashed rgba(108,65,53,0.28);
+  border-radius: 8px;
+}
+.cv-levelinfo-unlock {
+  margin-top: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(74,38,4,0.78);
+  background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,236,200,0.45) 100%);
+  border: 1.5px dashed rgba(108,65,53,0.34);
+  border-radius: 10px;
+}
+.cv-levelinfo-unlock-cd {
+  font-variant-numeric: tabular-nums;
+  color: #b85c14;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+/* 飞行宝箱（CTA → tray）与飞行积分粒子（stage → 进度条） */
+.cv-fly-chest {
+  position: fixed;
+  width: 32px; height: 24px;
+  border-radius: 7px 7px 5px 5px;
+  border: 2px solid rgba(40,18,8,0.45);
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,0.25), 0 4px 10px rgba(0,0,0,0.22);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transition: transform 0.5s cubic-bezier(0.42, 0, 0.45, 1), opacity 0.5s ease;
+}
+.cv-fly-chest .cv-mini-lid {
+  position: absolute;
+  left: 2px; right: 2px; top: -5px;
+  height: 9px;
+  border-radius: 5px 5px 2px 2px;
+  border: 1.5px solid rgba(40,18,8,0.45);
+}
+.cv-fly-chest.q-white  .cv-mini-lid { background: linear-gradient(180deg, #cdc3b9 0%, #aea59d 100%); }
+.cv-fly-chest.q-green  .cv-mini-lid { background: linear-gradient(180deg, #6cc97c 0%, #3c8d56 100%); }
+.cv-fly-chest.q-blue   .cv-mini-lid { background: linear-gradient(180deg, #5e92e6 0%, #3464a8 100%); }
+.cv-fly-chest.q-purple .cv-mini-lid { background: linear-gradient(180deg, #b27adb 0%, #8049b0 100%); }
+.cv-fly-chest.q-orange .cv-mini-lid { background: linear-gradient(180deg, #ffb654 0%, #d27a1f 100%); }
+.cv-fly-chest .cv-mini-lock {
+  position: absolute;
+  left: 50%; top: 5px;
+  width: 7px; height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(70,30,10,0.4);
+}
+.cv-fly-chest.q-white  .cv-mini-lock { background: #f3f0eb; }
+.cv-fly-chest.q-green  .cv-mini-lock { background: #b7f3c6; }
+.cv-fly-chest.q-blue   .cv-mini-lock { background: #d0e2ff; }
+.cv-fly-chest.q-purple .cv-mini-lock { background: #ecd1ff; }
+.cv-fly-chest.q-orange .cv-mini-lock { background: #ffe3b3; }
+
+.cv-fly-point {
+  position: fixed;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff7c8 0%, #ffd96a 38%, #ff9c1c 78%, #c46b08 100%);
+  border: 3px solid #2a1400;
+  outline: 2px solid #fff2b0;
+  outline-offset: -5px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.55),
+    0 0 8px #fff2a8,
+    0 0 18px rgba(255, 196, 60, 1),
+    0 0 30px rgba(255, 150, 30, 0.85),
+    inset 0 1px 2px rgba(255, 255, 255, 0.85);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  -webkit-text-stroke: 1.2px #2a1400;
+  text-shadow:
+    0 0 2px #2a1400,
+    0 1px 2px rgba(0, 0, 0, 0.95),
+    0 0 6px rgba(255, 220, 90, 0.9);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.5, 1), opacity 0.6s ease;
+}
+@keyframes cv-tray-bump {
+  0%   { transform: translateY(0)    scale(1); }
+  35%  { transform: translateY(-4px) scale(1.08); }
+  70%  { transform: translateY(0)    scale(0.98); }
+  100% { transform: translateY(0)    scale(1); }
+}
+.cv-tray-bump { animation: cv-tray-bump 0.4s ease-out; }
 
 /* 共用：弹窗中迷你宝箱（保留给主界面国家/个人弹窗复用） */
 .vault-slot-mini {
@@ -3592,29 +4051,29 @@ body.phase-preview .main-brief-rules { display: block; }
 
     <!-- 标题栏 -->
     <div class="cv-title-bar">
+      <button class="cv-level-badge" id="cv-level-badge" onclick="openChestLevelModal()" aria-label="查看宝箱等级">
+        <span class="cv-level-badge-key">Lv</span>
+        <span class="cv-level-badge-num" id="cv-level-badge-num">3</span>
+        <span class="cv-level-badge-dot" id="cv-level-badge-dot">!</span>
+      </button>
       <div class="cv-title-text">宝箱</div>
     </div>
 
-    <!-- 积分进度区（领取奖励横条） -->
+    <!-- 积分循环进度区（玩家可见：仅进度条 + 待领取宝箱按钮，循环规则不外露） -->
     <div class="cv-score-strip">
-      <div class="cv-score-emblem">
-        <span class="cv-score-emblem-key">Lv</span>
-        <span class="cv-score-emblem-text" id="cv-score-emblem-level">5</span>
-      </div>
       <div class="cv-score-mid">
-        <div class="cv-score-text" id="cv-score-text">还差 62 积分升级（赛季上限 Lv 8）</div>
         <div class="cv-score-bar">
           <div class="cv-score-bar-fill" id="cv-score-bar-fill"></div>
+          <div class="cv-score-bar-marks" id="cv-score-bar-marks"></div>
+          <div class="cv-score-bar-label" id="cv-score-bar-label">0/0</div>
         </div>
-        <div class="cv-score-val" id="cv-score-val">积分值 38/100</div>
       </div>
-      <button class="cv-score-cta" id="cv-score-cta" onclick="claimLevelReward()">
-        <div class="cv-score-cta-chest q-blue" id="cv-score-cta-chest">
+      <button class="cv-score-cta" id="cv-score-cta" onclick="claimCycleReward()" aria-label="领取奖励宝箱">
+        <div class="cv-score-cta-chest q-green" id="cv-score-cta-chest">
           <div class="cv-mini-lid"></div>
           <div class="cv-mini-lock"></div>
         </div>
         <div class="cv-score-cta-flag" id="cv-score-cta-flag">!</div>
-        <span class="cv-score-cta-text">领取奖励</span>
       </button>
     </div>
 
@@ -3622,8 +4081,7 @@ body.phase-preview .main-brief-rules { display: block; }
     <div class="cv-stage">
       <button class="cv-help-btn" onclick="showCvProbModal()" aria-label="奖励概率说明">?</button>
 
-      <div class="cv-stage-name" id="cv-stage-name">蓝钢宝箱</div>
-      <div class="cv-stage-tip" id="cv-stage-tip">每个宝箱必出 4 件奖励，蓝色品质有 18% 概率出招募令</div>
+      <div class="cv-stage-name" id="cv-stage-name">白银宝箱</div>
 
       <div class="cv-stage-body">
         <button class="cv-stage-arrow cv-stage-arrow-left" onclick="cycleSelected(-1)">‹</button>
@@ -3642,8 +4100,8 @@ body.phase-preview .main-brief-rules { display: block; }
       <div class="cv-stage-empty" id="cv-stage-empty">暂无宝箱</div>
 
       <div class="cv-stage-actions">
-        <button class="cv-action-btn cv-action-secondary" id="cv-open-one-btn" onclick="cvOpenSelected(1)">开启 1 个</button>
-        <button class="cv-action-btn cv-action-primary" id="cv-open-all-btn" onclick="cvOpenSelected('all')">全部开启</button>
+        <button class="cv-action-btn cv-action-primary" id="cv-open-one-btn" onclick="cvOpenSelected(1)">开启 1 个</button>
+        <button class="cv-action-btn cv-action-secondary" id="cv-open-all-btn" onclick="cvOpenSelected('all')" style="display:none">全部开启</button>
       </div>
     </div>
 
@@ -3678,7 +4136,7 @@ body.phase-preview .main-brief-rules { display: block; }
 
     <!-- 底部返回栏 -->
     <div class="cv-bottombar">
-      <button class="cv-back-btn" onclick="showSplitToast('slg')" aria-label="返回">
+      <button class="cv-back-btn" onclick="showToast('返回主界面')" aria-label="返回主界面">
         <span class="cv-back-arrow">‹</span>
         <span class="cv-back-text">返回</span>
       </button>
@@ -3700,7 +4158,7 @@ body.phase-preview .main-brief-rules { display: block; }
     </div>
 
     <!-- ─── 恭喜获得 overlay ─── -->
-    <div class="cv-result-overlay" id="cv-result-overlay">
+    <div class="cv-result-overlay" id="cv-result-overlay" onclick="if(event.target===this) cvCloseResult()">
       <div class="cv-result-vignette"></div>
       <div class="cv-result-head">
         <div class="cv-result-tag">奖励</div>
@@ -3708,8 +4166,8 @@ body.phase-preview .main-brief-rules { display: block; }
       </div>
       <div class="cv-result-grid" id="cv-result-grid"></div>
 
-      <!-- 积分作为特殊奖励：等级 + 经验进度条（开启后动效） -->
-      <div class="cv-result-points" id="cv-result-points">
+      <!-- 积分作为特殊奖励：不在本弹窗展示；cvCloseResult 后会以飞行动效补到主界面进度条 -->
+      <div class="cv-result-points" id="cv-result-points" style="display:none">
         <div class="cv-result-points-card">
           <div class="cv-result-points-icon">⭐</div>
           <div class="cv-result-points-meta">
@@ -3730,9 +4188,9 @@ body.phase-preview .main-brief-rules { display: block; }
 
       <div class="cv-result-foot">
         <button class="cv-result-btn cv-result-btn-secondary" id="cv-result-again-btn" onclick="cvOpenAgain()">再开 1 个</button>
-        <button class="cv-result-btn cv-result-btn-primary" onclick="cvCloseResult()">收下</button>
+        <!-- 文案与点击量在 showCvResultOverlay 中按当前库存动态写入（min(remaining, 15)） -->
       </div>
-      <div class="cv-result-tap-hint">点击空白处继续</div>
+      <div class="cv-result-tap-hint" onclick="cvCloseResult()">点击空白处继续</div>
     </div>
 
     <!-- ─── 升级/免费宝箱 overlay ─── -->
@@ -3747,7 +4205,7 @@ body.phase-preview .main-brief-rules { display: block; }
           <div class="cv-levelup-chest q-blue" id="cv-levelup-chest">
             <div class="cv-chest-art"></div>
           </div>
-          <div class="cv-levelup-chest-name" id="cv-levelup-chest-name">蓝钢宝箱 ×1</div>
+          <div class="cv-levelup-chest-name" id="cv-levelup-chest-name">白银宝箱 ×1</div>
         </div>
         <button class="cv-levelup-btn" onclick="cvCloseLevelup()">收下</button>
       </div>
@@ -3762,9 +4220,36 @@ body.phase-preview .main-brief-rules { display: block; }
         </div>
         <div class="cv-prob-tabs" id="cv-prob-tabs"></div>
         <div class="cv-prob-body">
-          <div class="cv-prob-summary" id="cv-prob-summary">每开 1 个宝箱，固定掉落 4 件物品。</div>
+          <div class="cv-prob-summary" id="cv-prob-summary" style="display:none"></div>
           <div class="cv-prob-list" id="cv-prob-list"></div>
-          <div class="cv-prob-footnote">概率为本次活动展示值，实际配置以服务端为准。</div>
+          <div class="cv-prob-footnote" id="cv-prob-footnote">宝箱将在 <span id="cv-prob-season-cd">--天 00:00:00</span> 后自动开启，奖励将会发送到邮箱。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 宝箱等级查看界面 ─── -->
+    <div class="cv-levelinfo-overlay" id="cv-levelinfo-overlay" onclick="if(event.target===this) closeChestLevelModal()">
+      <div class="cv-levelinfo-card">
+        <div class="cv-levelinfo-head">
+          <div class="cv-levelinfo-title">宝箱等级</div>
+          <button class="cv-levelinfo-close" onclick="closeChestLevelModal()" aria-label="关闭">✕</button>
+        </div>
+        <div class="cv-levelinfo-body">
+          <div class="cv-levelinfo-banner">
+            <div class="cv-levelinfo-banner-left">
+              <div class="cv-levelinfo-banner-key">当前等级</div>
+              <div class="cv-levelinfo-banner-lv" id="cv-levelinfo-cur-lv">Lv 3</div>
+            </div>
+            <div class="cv-levelinfo-banner-mid">
+              <div class="cv-levelinfo-banner-xp-text" id="cv-levelinfo-xp-text">经验 50 / 150</div>
+              <div class="cv-levelinfo-banner-xp-bar">
+                <div class="cv-levelinfo-banner-xp-fill" id="cv-levelinfo-xp-fill"></div>
+              </div>
+            </div>
+            <button class="cv-levelinfo-up-btn" id="cv-levelinfo-up-btn" onclick="performLevelUp()">升级</button>
+          </div>
+          <div class="cv-levelinfo-effect">等级影响积分奖励宝箱的品质</div>
+          <div class="cv-levelinfo-list" id="cv-levelinfo-list"></div>
         </div>
       </div>
     </div>
@@ -4150,34 +4635,34 @@ body.phase-preview .main-brief-rules { display: block; }
 
     <!-- 标题区 -->
     <div class="doc-h1">宝箱系统</div>
-    <div class="doc-subtitle">版本 0.5 &nbsp;·&nbsp; 2026-04-29 &nbsp;·&nbsp; 宝箱仓库 v2 · 等级 + 积分系统</div>
     <hr class="doc-divider-title">
 
     <!-- ─── 章节一：系统概述 ─── -->
     <a class="doc-anchor" id="doc-overview"></a>
     <div class="doc-h2"><span><span class="doc-section-num">一</span>系统概述</span></div>
-    <p class="doc-p">宝箱系统是各类资源赏、进度赏与活动赏的<b>统一发放与开启容器</b>。玩家在其他系统（如《攻城掠地 SLG 活动》）中获得的宝箱会入库到本系统，玩家可<b>随时进入宝箱界面</b>选择开启时机。</p>
+    <p class="doc-p">宝箱系统是各类资源赏、进度赏与活动赏的<b>统一发放与开启容器</b>。本系统为<b>完全独立的玩法系统</b>，不依赖任何其他活动生命周期；其他系统产出的宝箱会入库到本系统，玩家可<b>随时进入宝箱界面</b>选择开启时机。</p>
     <ul class="doc-ul">
-      <li>宝箱按 5 个品质阶段划分：<b>白铁 / 青铜 / 蓝钢 / 秘银 / 赤金</b></li>
+      <li>宝箱按 5 个品质阶段划分：<b>木制 / 青铜 / 白银 / 黄金 / 钻石</b></li>
       <li>宝箱<b>仓库本身</b>只负责存储、开启与进度计量；<b>宝箱来源</b>交由各产出系统控制</li>
-      <li>本系统包含宝箱<b>等级</b>与<b>积分</b>两条赋能线：开箱获积分、积分升等、升等送免费宝箱，详见章节二</li>
+      <li>本系统包含宝箱<b>积分循环</b>与<b>独立等级</b>两条赋能线：积分循环产出奖励宝箱、等级决定奖励宝箱品质，详见章节二</li>
     </ul>
 
     <div class="doc-h3"><span>1.1 系统入口（主界面集成）</span></div>
     <div class="doc-note blue">本系统不新增主界面入口样式，仅复用现有主界面右侧的<b>活动按钮区</b>接入入口；按钮位置、外观、出现时机都交由<b>主界面文档</b>统一控制，本文档仅说明点击后的入口逻辑。</div>
+    <div class="doc-note amber">⚠ <b>宝箱仓库入口可同时在多个主界面（例如封地主界面、其他主界面）出现</b>，以保证玩家在不同场景下都能随时点进仓库查看与开启宝箱。多处入口指向<b>同一个宝箱仓库界面</b>，状态（库存、等级、积分、赛季）完全共享。</div>
     <div class="doc-note amber">⚠ 入口外观<b>基于主界面调整后的设计</b>。若主界面尚未完成调整，先在大致位置摆放<b>临时按钮</b>占位（满足跳转逻辑即可），待主界面定稿后替换为正式样式。</div>
     <div class="doc-figure">
       <img src="res/entry.png" alt="宝箱仓库入口示意图" class="doc-figure-img">
-      <div class="doc-figure-cap">主界面右侧红框 —— <b>宝箱仓库</b> 入口（独立于《攻城掠地 SLG 活动》入口，位于主界面右下侧）</div>
+      <div class="doc-figure-cap">主界面右侧红框 —— <b>宝箱仓库</b> 入口（独立于其他活动入口，位于主界面右下侧）</div>
     </div>
     <table class="doc-table">
       <thead><tr><th>入口</th><th>点击跳转</th><th>外观 / 状态提示</th></tr></thead>
       <tbody>
-        <tr><td><b>宝箱仓库</b><br>（仓库独立入口）</td><td>直接进入<b>宝箱界面</b>（仓库主页），即本文档章节二</td><td>仓库内有未开启宝箱时可叠加小红点；序列位于 “攻城掠地 ” 入口下方，与其独立</td></tr>
+        <tr><td><b>宝箱仓库</b><br>（仓库独立入口）</td><td>直接进入<b>宝箱界面</b>（仓库主页），即本文档章节二</td><td>仓库内有未开启宝箱时可叠加小红点；位于主界面指定区域，独立于其他活动入口</td></tr>
       </tbody>
     </table>
     <ul class="doc-ul">
-      <li>本入口与《攻城掠地 SLG 活动》主入口<b>互不依赖</b>：玩家可随时进宝箱仓库查看历史宝箱，无需先过活动主界面</li>
+      <li>本入口<b>独立于其他任何活动主入口</b>：玩家可随时进宝箱仓库查看历史宝箱，无需先过任何活动主界面</li>
       <li>仅领奖期中本场未领取的宝箱走<b>活动主界面 → 点击宝箱 → 领取 → 进入仓库</b>路径</li>
     </ul>
 
@@ -4395,42 +4880,85 @@ body.phase-preview .main-brief-rules { display: block; }
       <button class="doc-jump-btn" onclick="jumpTo('screen-chest')">↗ 查看原型</button>
     </div>
 
-    <div class="doc-h3"><span>2.1 宝箱主界面（v2 · 咸鱼之王风格）</span></div>
-    <div class="doc-note blue">宝箱界面的<b>入口位置</b>（在游戏主界面的位置、按钮形态等）由游戏<b>主界面</b>统一承载，<b>详见主界面相关文档</b>。本文档只描述进入宝箱界面后的内部结构与交互。</div>
-    <p class="doc-p">界面结构参考《咸鱼之王》宝箱页，自上而下分为四层：<span class="doc-hl">宝箱等级条</span>、<span class="doc-hl">积分进度条 + 领取奖励按钮</span>、<span class="doc-hl">中央舞台</span>（当前选中宝箱大图 + 切换箭头 + 单开 / 全开按钮）、<span class="doc-hl">底部 5 品质宝箱栏</span>。整体不挂接到主界面底部页签，作为独立全屏页存在。</p>
+    <div class="doc-h3"><span>2.1 宝箱主界面（v3.1 · 左上角等级 + 顶部进度条）</span></div>
+    <div class="doc-note blue">宝箱界面的<b>入口位置</b>（在游戏主界面的位置、按钮形态等）由游戏<b>主界面</b>统一承载，<b>详见主界面相关文档</b>；仓库入口同时存在于封地主界面与 SLG 主界面。本文档只描述进入宝箱界面后的内部结构与交互。</div>
+    <p class="doc-p">界面结构参考<b>《兽化三国》</b>与<b>《咸鱼之王》</b>宝箱页，自上而下划分为四层：<span class="doc-hl">标题栏（左上角宝箱等级徽章）</span>、<span class="doc-hl">顶部进度条 + 兑换宝箱按钮</span>、<span class="doc-hl">中央舞台</span>（当前选中宝箱大图 + 切换箭头 + 开启按钮）、<span class="doc-hl">底部 5 品质宝箱栏</span>。整体不挂接到主界面底部页签，作为独立全屏页存在。</p>
     <ul class="doc-ul">
-      <li>顶部"等级条"显示<span class="doc-hl">当前等级 → 下一等级</span>胶囊与升级进度（与积分共用一条值）</li>
-      <li>积分条采用绿色进度条 + 金色"积分"印章，右侧 <span class="doc-hl">领取奖励按钮</span> 在<span class="doc-hl">奖励待领取</span>时高亮抖动</li>
-      <li>中央舞台带光晕 + 切换箭头，可循环切换 5 种品质，宝箱品质对应专属配色</li>
-      <li>当某品质库存为 0 时，舞台显示"暂无库存"占位，按钮自动禁用</li>
-      <li>底部 5 槽显示各品质库存数量；当前选中加金边高亮，库存>0 显示红点提示</li>
+      <li><b>左上角宝箱等级徽章</b>：独立于标题栏左上角，显示当前 Lv。当<b>经验满足升级</b>时叠加<span class="doc-hl">脉动红点</span>；点击徽章进入<b>宝箱等级查看界面</b>（只列出已开放等级，剩余未开放以一条倒计时提示；列表上方附“等级影响积分奖励宝箱的品质”说明）。</li>
+      <li><b>顶部进度条 + 兑换宝箱按钮</b>：进度条上叠加 <b>当前值 / 需求值</b> 文本提示；右侧按钮未就绪时背景置灰（宝箱图仍正常上色），点击弹出“积分不足，无法兑换宝箱奖励”提示；就绪时亮起（黄绿色 + 黄色脉动光环）。循环机制不外露给玩家。</li>
+      <li><b>中央舞台</b>：带光晕 + 切换箭头，可循环切换 5 种品质，宝箱品质对应专属配色；库存为 0 时显示“暂无库存”占位，按钮自动禁用。不在舞台上展示概率提示文本，详细概率请点右上“?”按钮查看。</li>
+      <li><b>中央开启按钮</b>：单一按钮，实际开启数量 = <b>min(当前品质库存, 15)</b>，按钮文本动态为 “开启 X 个”（X 为实际会开的个数）。不允许一次超过 15 个，避免开箱动效过长。</li>
+      <li><b>底部 5 槽</b>：各品质库存数量；当前选中加金边高亮，库存>0 显示红点提示。</li>
+      <li><b>返回按钮</b>：点击后返回游戏<b>主界面</b>。</li>
     </ul>
 
-    <div class="doc-h3"><span>2.2 宝箱等级 · 积分系统</span></div>
-    <div class="doc-note amber">⚠ 本节中所有<u style="text-decoration-style:dashed;">带橙色虚线下划线</u>的数值（积分掉落、每级所需积分、等级与品质对照、赛季上限等）均为<b>演示用占位值</b>，仅用于帮助理解规则；<b>最终数值以数值策划配置表为准</b>。</div>
-    <p class="doc-p">玩家在宝箱仓库内开启宝箱时，按品质获得<span class="doc-hl">对应积分</span>；积分填满进度后<span class="doc-hl">提升宝箱等级</span>，并赠送一个<span class="doc-hl">免费宝箱</span>，宝箱品质与升级后的等级关联。</p>
+    <div class="doc-h3"><span>2.2 积分兑换宝箱 + 宝箱等级（两条独立赋能线）</span></div>
+    <div class="doc-note amber">⚠ 本节中所有<u style="text-decoration-style:dashed;">带橙色虚线下划线</u>的数值均为<b>演示用占位值</b>，仅用于帮助理解规则；<b>最终数值以数值策划配置表为准</b>。</div>
+    <p class="doc-p">玩家在宝箱仓库内开启宝箱时，同时贡献两条<b>独立</b>的赋能线：</p>
     <ul class="doc-ul">
-      <li><span class="doc-hl">积分获取</span>：每次开启宝箱按其品质获得积分，<b>品质越高积分越多</b>。演示值：白铁 <span class="doc-tentative" title="演示值，最终以数值配置为准">+5</span> / 青铜 <span class="doc-tentative" title="演示值，最终以数值配置为准">+10</span> / 蓝钢 <span class="doc-tentative" title="演示值，最终以数值配置为准">+20</span> / 秘银 <span class="doc-tentative" title="演示值，最终以数值配置为准">+40</span> / 赤金 <span class="doc-tentative" title="演示值，最终以数值配置为准">+80</span>（每开 1 个）</li>
-      <li><span class="doc-hl">升级触发</span>：积分填满当前等级进度后即提升一级，进度归零，<b>溢出积分自动转入下一级</b>。演示值：升级所需 <span class="doc-tentative" title="演示值，最终以数值配置为准">100</span> 积分 / 级</li>
-      <li><span class="doc-hl">免费宝箱奖励</span>：每次升级赠送一个免费宝箱，宝箱品质<b>与升级后的等级档位绑定</b>。演示对照：<span class="doc-tentative" title="演示值，最终以数值配置为准">Lv 1-2 → 白铁</span>，<span class="doc-tentative" title="演示值，最终以数值配置为准">Lv 3-4 → 青铜</span>，<span class="doc-tentative" title="演示值，最终以数值配置为准">Lv 5-6 → 蓝钢</span>，<span class="doc-tentative" title="演示值，最终以数值配置为准">Lv 7-8 → 秘银</span>，<span class="doc-tentative" title="演示值，最终以数值配置为准">Lv 9+ → 赤金</span></li>
-      <li><span class="doc-hl">赛季等级上限</span>：每个赛季存在等级上限，本赛季最多升至该上限；新赛季开放更高的等级上限。演示值：<span class="doc-tentative" title="演示值，最终以数值配置为准">S1 上限 Lv 8</span></li>
-      <li><span class="doc-hl">满级仍可累积</span>：达到本赛季等级上限后，开箱积分仍正常累计，进度满时不再升级，但<b>仍发放对应等级的"满级奖励宝箱"</b></li>
-      <li><span class="doc-hl">奖励领取方式</span>：升级 / 满级奖励均通过<span class="doc-hl">领取奖励按钮</span> 触发，弹出升级结算层（金色光环 + 宝箱图 + "收下"），收下后宝箱入库；按钮在无奖励时仍可点击，会提示"开启宝箱以获得额外奖励"</li>
+      <li><span class="doc-hl">积分兑换</span>：宝箱累积 <b>积分</b> 填充顶部进度条，填满后<b>保持满状态</b>不自动产出奖励；玩家点击<b>兑换按钮</b>后一次性消费所有可消费积分并产出多个奖励宝箱</li>
+      <li><span class="doc-hl">宝箱等级</span>：宝箱累积 <b>经验</b> 提升 Lv，等级决定兑换产出的<b>奖励宝箱品质</b>；等级上限随赛季开放</li>
+    </ul>
+
+    <div class="doc-h4-sub" style="margin:14px 0 4px;font-weight:bold;color:#5a3800;">一、积分兑换奖励宝箱（顶部进度条）</div>
+    <ul class="doc-ul">
+      <li><b>积分获取</b>：每开启 1 个宝箱按品质获得积分。演示值：
+        木制 <span class="doc-tentative" title="演示值，最终以数值配置为准">+1</span>
+        / 青铜 <span class="doc-tentative" title="演示值，最终以数值配置为准">+10</span>
+        / 白银 <span class="doc-tentative" title="演示值，最终以数值配置为准">+20</span>
+        / 黄金 <span class="doc-tentative" title="演示值，最终以数值配置为准">+30</span>
+        / 钻石 <span class="doc-tentative" title="演示值，最终以数值配置为准">+50</span></li>
+      <li><b>五段阈值循环</b>（数值侧概念，不外露给玩家）：兑换时按顺序消费五段阈值，每消费一段产出 1 个奖励宝箱；五段走完后回到第 1 段循环。演示值：
+        <span class="doc-tentative" title="演示值，最终以数值配置为准">10 → 20 → 30 → 40 → 60</span></li>
+      <li><b>积分注入规则</b>：积分注入进度条时，即使超过当前段阈值也<b>不会自动扣除或进入下一段</b>；进度条<b>保持满状态</b>并显示当前值/需求值（例：100/10）。仅当玩家点击<b>兑换宝箱按钮</b>时，一次性消费所有可消费的积分并产出对应数量的奖励宝箱（例：100 积分从第 1 段起 → 消费 10+20+30+40 = 100，产出 4 个奖励宝箱，进度重置为第 5 段 0/60）</li>
+      <li><b>兑换动效</b>：点击后多个奖励宝箱<b>逐个从按钮位置飞到底部对应品质槽位</b>，到达后该槽位数量 +1，同时顶部进度条逐步从“满”回退到剩余状态。不再弹出奖励庆祝弹窗，也不需要“收下”按钮。</li>
+      <li><b>未就绪点击</b>：按钮置灰状态下点击兑换按钮弹出 toast：“积分不足，无法兑换宝箱奖励”</li>
+      <li><b>奖励宝箱品质</b>：兑换产出的宝箱品质<b>完全由当前宝箱等级决定</b>（详见下表），与玩家实际开启的宝箱品质<b>无关</b></li>
+    </ul>
+
+    <div class="doc-h4-sub" style="margin:14px 0 4px;font-weight:bold;color:#5a3800;">二、宝箱等级（左上角徽章）</div>
+    <ul class="doc-ul">
+      <li><b>经验获取</b>：每开启 1 个宝箱同时获得经验，品质越高经验越多。演示值：
+        木制 <span class="doc-tentative" title="演示值，最终以数值配置为准">+1 XP</span>
+        / 青铜 <span class="doc-tentative" title="演示值，最终以数值配置为准">+5 XP</span>
+        / 白银 <span class="doc-tentative" title="演示值，最终以数值配置为准">+10 XP</span>
+        / 黄金 <span class="doc-tentative" title="演示值，最终以数值配置为准">+20 XP</span>
+        / 钻石 <span class="doc-tentative" title="演示值，最终以数值配置为准">+40 XP</span></li>
+      <li><b>升级触发</b>：经验达到下一级需求后，左上角徽章出现<span class="doc-hl">脉动红点</span>；点击徽章进入<b>宝箱等级提升界面</b>，点击<b>升级</b>按钮才正式提升一级（手动确认，便于玩家看到升级过程）</li>
+      <li><b>等级与循环品质对照</b>（演示）：下表列出各等级对应的<b>5 个循环奖励宝箱品质</b></li>
+    </ul>
+
+    <table class="doc-table">
+      <thead><tr><th>宝箱等级</th><th>兑换产出的 5 个奖励宝箱品质（对应阈值 10→20→30→40→60）</th></tr></thead>
+      <tbody>
+        <tr><td><b>Lv 1</b></td><td><span class="doc-tag q-white">木</span> <span class="doc-tag q-white">木</span> <span class="doc-tag q-white">木</span> <span class="doc-tag q-white">木</span> <span class="doc-tag q-white">木</span></td></tr>
+        <tr><td><b>Lv 2</b></td><td><span class="doc-tag q-white">木</span> <span class="doc-tag q-white">木</span> <span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span></td></tr>
+        <tr><td><b>Lv 3</b></td><td><span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span></td></tr>
+        <tr><td><b>Lv 4</b></td><td><span class="doc-tag q-green">青</span> <span class="doc-tag q-green">青</span> <span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span></td></tr>
+        <tr><td><b>Lv 5</b></td><td><span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span></td></tr>
+        <tr><td><b>Lv 6</b></td><td><span class="doc-tag q-blue">银</span> <span class="doc-tag q-blue">银</span> <span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span></td></tr>
+        <tr><td><b>Lv 7</b></td><td><span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span></td></tr>
+        <tr><td><b>Lv 8</b></td><td><span class="doc-tag q-purple">金</span> <span class="doc-tag q-purple">金</span> <span class="doc-tag q-orange">钻</span> <span class="doc-tag q-orange">钻</span> <span class="doc-tag q-orange">钻</span></td></tr>
+        <tr><td><b>Lv 9</b></td><td><span class="doc-tag q-orange">钻</span> <span class="doc-tag q-orange">钻</span> <span class="doc-tag q-orange">钻</span> <span class="doc-tag q-orange">钻</span> <span class="doc-tag q-orange">钻</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="doc-h4-sub" style="margin:14px 0 4px;font-weight:bold;color:#5a3800;">三、赛季上限与重置</div>
+    <ul class="doc-ul">
+      <li><b>赛季上限</b>：赛季初即开放全部 <span class="doc-tentative" title="演示值，最终以数值配置为准">Lv 9</span> 等级（兑换品质上限 <b>钻石</b>），不再划分上 / 下半期、无解锁倒计时</li>
+      <li><b>新赛季重置</b>：赛季切换时<b>清空仓库中所有宝箱</b>、<b>重置宝箱等级为 Lv 1</b>、<b>重置积分与经验</b>，仅结算奖励以邮件形式发放（如未领取）</li>
+      <li><b>达到赛季上限</b>：经验不再提升，升级按钮变为<b>已满级</b>；积分兑换仍按当前等级品质正常产出奖励宝箱</li>
+      <li><b>未领取赛季宝箱</b>：赛季结束时仓库中未开启的宝箱会<b>自动开启</b>，奖励以邮件形式发放（概率页脚注同步展示赛季倒计时）</li>
     </ul>
 
     <div class="doc-h3"><span>2.3 开启流程与动效</span></div>
-    <p class="doc-p">点击"开启 1 个"或"全部开启"后，进入<span class="doc-hl">全屏开箱层</span>：暗场背景 + 聚光锥 + 居中宝箱开启动画 + 数量角标，随后切换到<span class="doc-hl">恭喜获得</span>结果层（"奖励"金牌 + 卡片网格）。</p>
+    <p class="doc-p">点击<span class="doc-hl">开启 X 个</span>（X = min(库存, 15)）后，进入<span class="doc-hl">全屏开箱层</span>：暗场背景 + 聚光锥 + 居中宝箱开启动画 + 数量角标，随后切换到<span class="doc-hl">恭喜获得</span>结果层（“奖励”金牌 + 卡片网格）。</p></p>
     <ul class="doc-ul">
       <li>开启动画：渐显 → 聚光锥下降 → 宝箱微缩放 + 盖子上掀 + 火花飘出（约 1s）</li>
       <li>恭喜界面：奖励卡片按品质（普通 / 稀有 / 史诗 / 传说）配色，依次<span class="doc-hl">弹跳呈现</span></li>
-      <li>底部双按钮：<span class="doc-hl">再开 1 个</span>（同品质，库存>0 时显示）与<span class="doc-hl">收下</span></li>
+      <li>底部按钮：<span class="doc-hl">再开 X 个</span>（同品质，库存 &gt; 0 才显示；X = min(剩余库存, 15)），点击空白处关闭恭喜界面</li>
       <li>若开启过程中触发了升级 / 满级奖励，<span class="doc-hl">收下后</span>会自动弹出升级结算层，玩家"收下"以入库</li>
     </ul>
-
-    <hr class="doc-divider">
-    <div class="doc-note" style="margin-top:4px;">
-      ⚠ 当前版本（v0.4）重写了宝箱仓库界面：参考咸鱼之王样式，新增等级条 / 积分系统 / 升级免费宝箱 / 满级仍可累积积分，单开 + 全开 + 恭喜界面 + 升级结算层均已串通。掉落与积分参数仍为演示数据，后续替换为正式数值表。
-    </div>
 
   </div><!-- /doc-body -->
 </div><!-- /doc-panel -->
@@ -4577,8 +5105,8 @@ function createEmptyInventory() {
 
 var CHEST_META = {
   white: {
-    title: '白铁宝箱',
-    shortTitle: '白铁',
+    title: '木制宝箱',
+    shortTitle: '木制',
     kicker: '基础补给',
     desc: '稳定产出粮草、玄铁与低阶将魂，适合前期和日常补给。',
     openHint: '基础宝箱，适合快速补足日常资源。'
@@ -4591,25 +5119,25 @@ var CHEST_META = {
     openHint: '青铜宝箱开启中，将掉落更完整的培养资源。'
   },
   blue: {
-    title: '蓝钢宝箱',
-    shortTitle: '蓝钢',
+    title: '白银宝箱',
+    shortTitle: '白银',
     kicker: '阶段主奖',
     desc: '兼顾资源与招募道具，是当前阶段结算最常见的核心奖励。',
-    openHint: '蓝钢宝箱开启中，奖励会直接进入背包。'
+    openHint: '白银宝箱开启中，奖励会直接进入背包。'
   },
   purple: {
-    title: '秘银宝箱',
-    shortTitle: '秘银',
+    title: '黄金宝箱',
+    shortTitle: '黄金',
     kicker: '高阶掉落',
     desc: '可稳定产出更高质量的将魂与强化材料，适合集中开启。',
-    openHint: '秘银宝箱开启中，高阶奖励概率显著提升。'
+    openHint: '黄金宝箱开启中，高阶奖励概率显著提升。'
   },
   orange: {
-    title: '赤金宝箱',
-    shortTitle: '赤金',
+    title: '钻石宝箱',
+    shortTitle: '钻石',
     kicker: '顶级珍藏',
     desc: '最高品质宝箱，适合集中展示稀有掉落与大批量收益。',
-    openHint: '赤金宝箱开启中，必有高阶奖励出现。'
+    openHint: '钻石宝箱开启中，必有高阶奖励出现。'
   }
 };
 
@@ -4647,13 +5175,13 @@ var CHEST_REWARD_TABLE = {
 };
 
 var chestInventory = (function() {
-  // 演示初始库存：覆盖各品质，方便可视化
+  // 演示初始库存：调高以便测试重复开启
   var inv = createEmptyInventory();
-  inv.white = 6;
-  inv.green = 4;
-  inv.blue = 3;
-  inv.purple = 1;
-  inv.orange = 0;
+  inv.white = 120;
+  inv.green = 100;
+  inv.blue = 100;
+  inv.purple = 100;
+  inv.orange = 100;
   return inv;
 })();
 var selectedChestType = QUALITY_ORDER[DEMO_CONFIG.finalQualityIndex];
@@ -4700,18 +5228,29 @@ function cacheRefs() {
 
   refs.screenChest = document.getElementById('screen-chest');
 
-  // 积分进度条
-  refs.cvScoreEmblemLevel = document.getElementById('cv-score-emblem-level');
-  refs.cvScoreText = document.getElementById('cv-score-text');
+  // 左上角等级徽章
+  refs.cvLevelBadge = document.getElementById('cv-level-badge');
+  refs.cvLevelBadgeNum = document.getElementById('cv-level-badge-num');
+  refs.cvLevelBadgeDot = document.getElementById('cv-level-badge-dot');
+
+  // 积分循环进度条
   refs.cvScoreBarFill = document.getElementById('cv-score-bar-fill');
-  refs.cvScoreVal = document.getElementById('cv-score-val');
   refs.cvScoreCta = document.getElementById('cv-score-cta');
   refs.cvScoreCtaChest = document.getElementById('cv-score-cta-chest');
   refs.cvScoreCtaFlag = document.getElementById('cv-score-cta-flag');
+  refs.cvScoreBarLabel = document.getElementById('cv-score-bar-label');
+
+  // 宝箱等级查看 overlay
+  refs.cvLevelinfoOverlay = document.getElementById('cv-levelinfo-overlay');
+  refs.cvLevelinfoCurLv = document.getElementById('cv-levelinfo-cur-lv');
+  refs.cvLevelinfoXpText = document.getElementById('cv-levelinfo-xp-text');
+  refs.cvLevelinfoXpFill = document.getElementById('cv-levelinfo-xp-fill');
+  refs.cvLevelinfoUpBtn = document.getElementById('cv-levelinfo-up-btn');
+  refs.cvLevelinfoSeason = document.getElementById('cv-levelinfo-season');
+  refs.cvLevelinfoList = document.getElementById('cv-levelinfo-list');
 
   // 中央舞台
   refs.cvStageName = document.getElementById('cv-stage-name');
-  refs.cvStageTip = document.getElementById('cv-stage-tip');
   refs.cvStageChest = document.getElementById('cv-stage-chest');
   refs.cvStageCount = document.getElementById('cv-stage-count');
   refs.cvStageEmpty = document.getElementById('cv-stage-empty');
@@ -4868,21 +5407,61 @@ function selectVaultChest(type) {
   selectChestType(type);
 }
 
-/* ─── 新：宝箱等级 / 积分 系统 ─── */
-var POINTS_PER_CHEST = { white: 5, green: 10, blue: 20, purple: 40, orange: 80 };
-var POINTS_PER_LEVEL = 100;
-var SEASON_INFO = { code: 'S1', maxLevel: 8 };
-function getQualityForLevel(level) {
-  if (level <= 2) return 'white';
-  if (level <= 4) return 'green';
-  if (level <= 6) return 'blue';
-  if (level <= 8) return 'purple';
-  return 'orange';
+/* ─── 新：宝箱积分循环 + 宝箱等级（独立两条线） ─── */
+
+// 每开 1 个宝箱获得的【积分】（用于积分循环条）— 用户指定演示值
+var POINTS_PER_CHEST = { white: 1, green: 10, blue: 20, purple: 30, orange: 50 };
+
+// 每开 1 个宝箱获得的【经验】（用于宝箱等级）— 演示值
+var XP_PER_CHEST = { white: 1, green: 5, blue: 10, purple: 20, orange: 40 };
+
+// 积分循环 5 段阈值（依次填满后回到第 0 段循环）
+var CYCLE_THRESHOLDS = [10, 20, 30, 40, 60];
+
+// 升至下一级所需经验（索引 = 当前等级，从 Lv1 升至 Lv2 需 XP_TO_NEXT[1]）— 演示值
+var XP_TO_NEXT = { 1: 30, 2: 60, 3: 80, 4: 120, 5: 160, 6: 200, 7: 260, 8: 320, 9: 400 };
+
+// 各等级 5 段循环奖励宝箱品质（用户指定：Lv1=木5, Lv2=木2青3, Lv3=青5, …）
+var LEVEL_CYCLE_QUALITY = {
+  1:  ['white','white','white','white','white'],
+  2:  ['white','white','green','green','green'],
+  3:  ['green','green','green','green','green'],
+  4:  ['green','green','blue','blue','blue'],
+  5:  ['blue','blue','blue','blue','blue'],
+  6:  ['blue','blue','purple','purple','purple'],
+  7:  ['purple','purple','purple','purple','purple'],
+  8:  ['purple','purple','orange','orange','orange'],
+  9:  ['orange','orange','orange','orange','orange'],
+  10: ['orange','orange','orange','orange','orange']
+};
+
+// 赛季信息：赛季初即开放全部 9 个等级，不再划分上/下半期
+var SEASON_INFO = {
+  code: 'S1',
+  halfLabel: '',
+  maxLevel: 9,         // 赛季内可达最高等级
+  fullMaxLevel: 9,     // 保留字段，与 maxLevel 一致代表无锁定梯度
+  // 赛季结束倍计时目标（演示值，页面打开后按当前时间倒数）
+  seasonEndTime: new Date(Date.now() + 13 * 24 * 3600 * 1000 + 23 * 3600 * 1000 + 24 * 60 * 1000 + 54 * 1000).getTime()
+};
+
+function getCycleQuality(level, idx) {
+  var lv = Math.max(1, Math.min(level, 10));
+  var arr = LEVEL_CYCLE_QUALITY[lv];
+  return arr ? arr[idx % 5] : 'white';
 }
-var chestLevelState = {
-  level: 5,
-  points: 38,
-  pendingReward: null  // { type, count, isLevelUp, fromLevel, toLevel }
+function getXpToNext(level) {
+  return XP_TO_NEXT[level] || 9999;
+}
+
+// 演示初值：Lv3、xp 满足升级（80/80）→ 左上角红点；积分已累计 100，
+// cycleIndex=0（阈值 10）→ 进度条满状态显示 100/10，点击 CTA 可消费 10+20+30+40=100
+// 并产出 4 个宝箱逐一飞到底部对应槽位（演示跨段、多宝箱、进度条逐步回退效果）。
+var chestState = {
+  level: 3,
+  xp: 80,
+  cycleIndex: 0,
+  cyclePoints: 100
 };
 
 /* 各品质宝箱"概率掉落"演示数据：每开 1 个固定 4 件，标注主推奖励命中率 */
@@ -4964,91 +5543,312 @@ function cycleSelected(dir) {
 }
 
 function isMaxLevel() {
-  return chestLevelState.level >= SEASON_INFO.maxLevel;
+  return chestState.level >= SEASON_INFO.maxLevel;
+}
+function canLevelUp() {
+  return !isMaxLevel() && chestState.xp >= getXpToNext(chestState.level);
 }
 
-// 处理积分进位：返回 pendingReward 数据（如有）
-function applyPointsGain(gainedPoints) {
-  chestLevelState.points += gainedPoints;
-  var rewardChests = {};  // type -> count
-  var levelUpFrom = chestLevelState.level;
-  while (chestLevelState.points >= POINTS_PER_LEVEL) {
-    chestLevelState.points -= POINTS_PER_LEVEL;
-    if (isMaxLevel()) {
-      // 满级：仍给免费宝箱（按当前等级品质），但不升级
-      var t = getQualityForLevel(chestLevelState.level);
-      rewardChests[t] = (rewardChests[t] || 0) + 1;
-    } else {
-      chestLevelState.level += 1;
-      var t2 = getQualityForLevel(chestLevelState.level);
-      rewardChests[t2] = (rewardChests[t2] || 0) + 1;
-    }
-  }
-  if (Object.keys(rewardChests).length === 0) return null;
-  // 合并到 pendingReward（多次连续触发未领取时叠加）
-  var existing = chestLevelState.pendingReward;
-  if (existing) {
-    rewardChests[existing.type] = (rewardChests[existing.type] || 0) + existing.count;
-  }
-  // 取最高品质作为代表
-  var topType = QUALITY_ORDER[0];
-  Object.keys(rewardChests).forEach(function(k) {
-    if (QUALITY_ORDER.indexOf(k) > QUALITY_ORDER.indexOf(topType)) topType = k;
-  });
-  chestLevelState.pendingReward = {
-    type: topType,
-    count: rewardChests[topType],
-    extras: rewardChests,  // 完整 type→count
-    isLevelUp: chestLevelState.level > levelUpFrom,
-    fromLevel: levelUpFrom,
-    toLevel: chestLevelState.level
-  };
-  return chestLevelState.pendingReward;
+// 累加 1 个 type 类型宝箱开启对应的【积分】与【经验】
+// 积分只累加：即使超过当前段阈值也不自动扣除/不自动产出奖励宝箱，
+// 进度条保持满状态并显示当前值/需求值；仅当玩家点击 CTA 时一次性消费可消费的部分并产出宝箱。
+// 经验只累加，升级需玩家在等级界面手动点击。
+function applyChestOpening(type, amount) {
+  var pPer = POINTS_PER_CHEST[type] || 0;
+  var xPer = XP_PER_CHEST[type] || 0;
+  chestState.cyclePoints += pPer * amount;
+  chestState.xp += xPer * amount;
 }
 
-function claimLevelReward() {
-  if (!chestLevelState.pendingReward) {
-    showToast('开启宝箱以获得额外奖励');
+function isCycleReady() {
+  return chestState.cyclePoints >= CYCLE_THRESHOLDS[chestState.cycleIndex];
+}
+
+function claimCycleReward() {
+  if (!isCycleReady()) {
+    if (typeof showToast === 'function') showToast('积分不足，无法兑换宝箱奖励');
     return;
   }
-  showCvLevelupOverlay(chestLevelState.pendingReward);
+  // 一次性消费所有可消费的积分，生成宝箱队列
+  var queue = [];
+  var simIdx = chestState.cycleIndex;
+  var simPts = chestState.cyclePoints;
+  var lv = chestState.level;
+  while (simPts >= CYCLE_THRESHOLDS[simIdx]) {
+    queue.push({
+      quality: getCycleQuality(lv, simIdx),
+      ptsAfter: simPts - CYCLE_THRESHOLDS[simIdx],
+      idxAfter: (simIdx + 1) % 5,
+      thrAfter: CYCLE_THRESHOLDS[(simIdx + 1) % 5]
+    });
+    simPts -= CYCLE_THRESHOLDS[simIdx];
+    simIdx = (simIdx + 1) % 5;
+  }
+  // 立即扣减状态，避免重点
+  chestState.cyclePoints = simPts;
+  chestState.cycleIndex = simIdx;
+  // CTA 本身取消 ready，但进度条文本仍需逐步动画 → 不调 renderChestVaultScreen
+  if (refs.cvScoreCta) refs.cvScoreCta.classList.remove('ready');
+  if (refs.cvScoreCtaFlag) refs.cvScoreCtaFlag.style.display = 'none';
+  flyClaimQueue(queue, 0);
 }
 
+function flyClaimQueue(queue, idx) {
+  if (idx >= queue.length) {
+    renderChestVaultScreen();
+    return;
+  }
+  var item = queue[idx];
+  flyChestFromCtaToTray(item.quality, function() {
+    chestInventory[item.quality] = Math.min(999, (chestInventory[item.quality] || 0) + 1);
+    // 逐步更新进度条为当前项消费后的状态
+    var thr = item.thrAfter;
+    var pts = item.ptsAfter;
+    var pct = Math.min(100, pts / thr * 100);
+    if (refs.cvScoreBarFill) refs.cvScoreBarFill.style.width = pct + '%';
+    if (refs.cvScoreBarLabel) refs.cvScoreBarLabel.textContent = pts + '/' + thr;
+    // 底部槽位计数同步刷新
+    refs.cvTraySlots.forEach(function(slot) {
+      var slotType = slot.getAttribute('data-cv-type');
+      var slotCount = chestInventory[slotType] || 0;
+      var cntEl = slot.querySelector('.cv-tray-count');
+      if (cntEl) cntEl.textContent = '×' + formatNumber(slotCount);
+      var flag = slot.querySelector('.cv-tray-flag');
+      if (flag) flag.style.display = slotCount > 0 ? 'flex' : 'none';
+      slot.classList.toggle('empty', slotCount === 0);
+    });
+  });
+  // 间隔尽量短，确保 10+ 个宝箱可在短时间内连续飞出
+  setTimeout(function() { flyClaimQueue(queue, idx + 1); }, 70);
+}
+
+function flyChestFromCtaToTray(quality, onArrive) {
+  var src = refs.cvScoreCtaChest;
+  var targetSlot = null;
+  if (refs.cvTraySlots) {
+    for (var i = 0; i < refs.cvTraySlots.length; i++) {
+      if (refs.cvTraySlots[i].getAttribute('data-cv-type') === quality) {
+        targetSlot = refs.cvTraySlots[i].querySelector('.cv-tray-img') || refs.cvTraySlots[i];
+        break;
+      }
+    }
+  }
+  if (!src || !targetSlot) {
+    if (onArrive) onArrive();
+    return;
+  }
+  var s = src.getBoundingClientRect();
+  var t = targetSlot.getBoundingClientRect();
+  var fly = document.createElement('div');
+  fly.className = 'cv-fly-chest q-' + quality;
+  fly.innerHTML = '<div class="cv-mini-lid"></div><div class="cv-mini-lock"></div>';
+  fly.style.left = (s.left + s.width / 2) + 'px';
+  fly.style.top  = (s.top + s.height / 2) + 'px';
+  document.body.appendChild(fly);
+  // next frame 进行变化
+  requestAnimationFrame(function() {
+    var dx = (t.left + t.width / 2) - (s.left + s.width / 2);
+    var dy = (t.top + t.height / 2) - (s.top + s.height / 2);
+    fly.style.transform = 'translate(-50%, -50%) translate(' + dx + 'px,' + dy + 'px) scale(0.7)';
+    fly.style.opacity = '0.9';
+  });
+  setTimeout(function() {
+    if (fly.parentNode) fly.parentNode.removeChild(fly);
+    // 到达时给目标槽加个闪一下的 class
+    var slotBtn = targetSlot.closest ? targetSlot.closest('.cv-tray-slot') : targetSlot.parentNode;
+    if (slotBtn) {
+      slotBtn.classList.remove('cv-tray-bump');
+      void slotBtn.offsetWidth;
+      slotBtn.classList.add('cv-tray-bump');
+    }
+    if (onArrive) onArrive();
+  }, 520);
+}
+
+// 复用 cv-levelup-overlay 作为"奖励宝箱获得"庆祝层
 function showCvLevelupOverlay(reward) {
   if (!refs.cvLevelupOverlay) return;
-  // 标题
-  if (reward.isLevelUp) {
-    refs.cvLevelupTag.textContent = '宝箱等级提升';
-    refs.cvLevelupTitle.textContent = 'Lv.' + reward.fromLevel + ' → Lv.' + reward.toLevel;
-    refs.cvLevelupSub.textContent = '免费赠送一个宝箱';
-  } else {
-    refs.cvLevelupTag.textContent = '满级积分奖励';
-    refs.cvLevelupTitle.textContent = 'Lv.' + chestLevelState.level + ' · MAX';
-    refs.cvLevelupSub.textContent = '已达赛季上限 · 仍获得宝箱奖励';
-  }
+  refs.cvLevelupTag.textContent = '获得奖励宝箱';
+  refs.cvLevelupTitle.textContent = CHEST_META[reward.type].title + (reward.count > 1 ? ' ×' + reward.count : '');
+  refs.cvLevelupSub.textContent = '积分进度循环奖励 · 收下后入库';
   clearQualityClasses(refs.cvLevelupChest);
   refs.cvLevelupChest.classList.add('q-' + reward.type);
-  var totalCount = 0;
-  Object.keys(reward.extras).forEach(function(k) { totalCount += reward.extras[k]; });
   refs.cvLevelupChestName.textContent = CHEST_META[reward.type].title +
-    (totalCount > 1 ? ' 等 ×' + totalCount : ' ×1');
+    (reward.count > 1 ? ' ×' + reward.count : ' ×1');
   refs.cvLevelupOverlay.classList.add('active');
   setActiveSceneChip('chest-levelup');
 }
 
 function cvCloseLevelup() {
-  if (!chestLevelState.pendingReward) {
-    refs.cvLevelupOverlay.classList.remove('active');
+  if (refs.cvLevelupOverlay) refs.cvLevelupOverlay.classList.remove('active');
+}
+
+/* ─── 宝箱等级查看 / 升级界面 ─── */
+function openChestLevelModal() {
+  if (!refs.cvLevelinfoOverlay) return;
+  renderLevelInfoModal();
+  refs.cvLevelinfoOverlay.classList.add('active');
+}
+function closeChestLevelModal() {
+  if (refs.cvLevelinfoOverlay) refs.cvLevelinfoOverlay.classList.remove('active');
+  stopLevelinfoCountdown();
+}
+function performLevelUp() {
+  if (!canLevelUp()) {
+    if (typeof showToast === 'function') showToast('经验不足或已达本赛季上限');
     return;
   }
-  // 把所有 extras 入库
-  var extras = chestLevelState.pendingReward.extras || {};
-  Object.keys(extras).forEach(function(k) {
-    chestInventory[k] = Math.min(999, (chestInventory[k] || 0) + extras[k]);
-  });
-  chestLevelState.pendingReward = null;
-  refs.cvLevelupOverlay.classList.remove('active');
+  var need = getXpToNext(chestState.level);
+  chestState.xp -= need;
+  chestState.level += 1;
+  renderLevelInfoModal();
   renderChestVaultScreen();
+  if (typeof showToast === 'function') showToast('宝箱等级提升至 Lv ' + chestState.level);
+}
+function renderLevelInfoModal() {
+  if (!refs.cvLevelinfoCurLv) return;
+  var lv = chestState.level;
+  var atMax = isMaxLevel();
+  // 仅显示 Lv 数字，不附加 · MAX
+  refs.cvLevelinfoCurLv.textContent = 'Lv ' + lv;
+  // 经验文本：达上限时隐藏（不显示 已达本赛季上限）
+  if (atMax) {
+    refs.cvLevelinfoXpText.style.visibility = 'hidden';
+    refs.cvLevelinfoXpFill.style.width = '100%';
+  } else {
+    var need = getXpToNext(lv);
+    refs.cvLevelinfoXpText.style.visibility = '';
+    refs.cvLevelinfoXpText.textContent = '经验 ' + chestState.xp + ' / ' + need;
+    refs.cvLevelinfoXpFill.style.width = Math.min(100, chestState.xp / need * 100) + '%';
+  }
+  // 升级按钮
+  var canUp = canLevelUp();
+  refs.cvLevelinfoUpBtn.disabled = !canUp;
+  refs.cvLevelinfoUpBtn.classList.toggle('ready', canUp);
+  refs.cvLevelinfoUpBtn.textContent = atMax ? '已满级' : '升级';
+  // 赛季说明（精简）→ 现在用于【等级效果描述】
+  if (refs.cvLevelinfoSeason) {
+    refs.cvLevelinfoSeason.innerHTML = '等级影响积分奖励宝箱的品质';
+  }
+  // 列表：仅列出已开放等级（1..maxLevel）；未开放以一条倒计时占位
+  var listHtml = '';
+  for (var i = 1; i <= SEASON_INFO.maxLevel; i++) {
+    var rowCls = 'cv-levelinfo-row';
+    var tag = '';
+    if (i === lv) { rowCls += ' current'; tag = '当前'; }
+    var cycleArr = LEVEL_CYCLE_QUALITY[i] || [];
+    var slots = cycleArr.map(function(q, segIdx) {
+      var cost = CYCLE_THRESHOLDS[segIdx];
+      return '<div class="cv-levelinfo-mini-wrap" data-cv-prob-quality="' + q + '" title="点击查看' + (CHEST_META[q] && CHEST_META[q].title || '') + '概率">'
+        + '<div class="cv-levelinfo-mini q-' + q + '"><div class="cv-mini-lid"></div><div class="cv-mini-lock"></div></div>'
+        + '<div class="cv-levelinfo-mini-cost">' + cost + '分</div>'
+      + '</div>';
+    }).join('');
+    listHtml += '<div class="' + rowCls + '">'
+      + '<div class="cv-levelinfo-row-lv">Lv ' + i + '</div>'
+      + '<div class="cv-levelinfo-row-cycle">' + slots + '</div>'
+      + '<div class="cv-levelinfo-row-tag">' + tag + '</div>'
+      + '</div>';
+  }
+  // 倒计时占位行（下半期开放剩余）
+  if (SEASON_INFO.fullMaxLevel > SEASON_INFO.maxLevel) {
+    listHtml += '<div class="cv-levelinfo-unlock">'
+      + '<span class="cv-levelinfo-unlock-text">Lv ' + (SEASON_INFO.maxLevel + 1) + ' ～ Lv ' + SEASON_INFO.fullMaxLevel + ' 将在</span>'
+      + '<span class="cv-levelinfo-unlock-cd" id="cv-levelinfo-unlock-cd">' + formatCountdown(SEASON_INFO.unlockTargetTime - Date.now()) + '</span>'
+      + '<span class="cv-levelinfo-unlock-text">后开放</span>'
+      + '</div>';
+  }
+  refs.cvLevelinfoList.innerHTML = listHtml;
+  startLevelinfoCountdown();
+  attachLevelinfoDragScroll();
+  attachLevelinfoMiniProb();
+  // 限高为 5 行 · 将当前等级置于可见区中间（第 3 行）；lv1/lv2 自然置顶，lv 靠后两级自然置底
+  requestAnimationFrame(function() {
+    var list = refs.cvLevelinfoList;
+    if (!list) return;
+    var rows = list.querySelectorAll('.cv-levelinfo-row');
+    if (!rows.length) return;
+    var rh = rows[0].getBoundingClientRect().height;
+    var gap = 6;
+    var visible = 5;
+    list.style.maxHeight = (visible * rh + (visible - 1) * gap) + 'px';
+    var centerOffset = Math.floor(visible / 2); // 2 → 第 3 行
+    var targetIdx = Math.max(0, (lv - 1) - centerOffset);
+    var scrollMax = Math.max(0, list.scrollHeight - list.clientHeight);
+    list.scrollTop = Math.min(scrollMax, targetIdx * (rh + gap));
+  });
+}
+
+// 宝箱图标点击 → 打开概率面板
+var levelinfoMiniBound = false;
+function attachLevelinfoMiniProb() {
+  if (levelinfoMiniBound) return;
+  var list = refs.cvLevelinfoList;
+  if (!list) return;
+  levelinfoMiniBound = true;
+  list.addEventListener('click', function(e) {
+    var wrap = e.target.closest && e.target.closest('.cv-levelinfo-mini-wrap');
+    if (!wrap) return;
+    var q = wrap.getAttribute('data-cv-prob-quality');
+    if (!q) return;
+    showCvProbModal(q);
+  });
+}
+
+// 鼠标按住拖动滚动（类似手机手指拖动）
+var levelinfoDragBound = false;
+function attachLevelinfoDragScroll() {
+  if (levelinfoDragBound) return;
+  var list = refs.cvLevelinfoList;
+  if (!list) return;
+  levelinfoDragBound = true;
+  var dragging = false, startY = 0, startScroll = 0, moved = false;
+  list.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    dragging = true; moved = false;
+    startY = e.clientY;
+    startScroll = list.scrollTop;
+    list.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    var dy = e.clientY - startY;
+    if (Math.abs(dy) > 3) moved = true;
+    list.scrollTop = startScroll - dy;
+  });
+  window.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    list.classList.remove('dragging');
+  });
+  // 拖动过程中阻止 click 触发（避免误点击）
+  list.addEventListener('click', function(e) {
+    if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+  }, true);
+}
+
+function formatCountdown(ms) {
+  if (ms < 0) ms = 0;
+  var totalSec = Math.floor(ms / 1000);
+  var d = Math.floor(totalSec / 86400);
+  var h = Math.floor((totalSec % 86400) / 3600);
+  var m = Math.floor((totalSec % 3600) / 60);
+  var s = totalSec % 60;
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  return d + '天 ' + pad(h) + ':' + pad(m) + ':' + pad(s);
+}
+
+var levelinfoCountdownTimer = null;
+function startLevelinfoCountdown() {
+  stopLevelinfoCountdown();
+  levelinfoCountdownTimer = setInterval(function() {
+    var el = document.getElementById('cv-levelinfo-unlock-cd');
+    if (!el) { stopLevelinfoCountdown(); return; }
+    el.textContent = formatCountdown(SEASON_INFO.unlockTargetTime - Date.now());
+  }, 1000);
+}
+function stopLevelinfoCountdown() {
+  if (levelinfoCountdownTimer) { clearInterval(levelinfoCountdownTimer); levelinfoCountdownTimer = null; }
 }
 
 /* ─── 宝箱概率弹窗 ─── */
@@ -5068,6 +5868,22 @@ function showCvProbModal(type) {
   renderCvProbBody(initType);
   refs.cvProbOverlay.classList.add('active');
   setActiveSceneChip('chest-prob');
+  startProbSeasonCountdown();
+}
+
+var probSeasonCountdownTimer = null;
+function startProbSeasonCountdown() {
+  stopProbSeasonCountdown();
+  function tick() {
+    var el = document.getElementById('cv-prob-season-cd');
+    if (!el) { stopProbSeasonCountdown(); return; }
+    el.textContent = formatCountdown(SEASON_INFO.seasonEndTime - Date.now());
+  }
+  tick();
+  probSeasonCountdownTimer = setInterval(tick, 1000);
+}
+function stopProbSeasonCountdown() {
+  if (probSeasonCountdownTimer) { clearInterval(probSeasonCountdownTimer); probSeasonCountdownTimer = null; }
 }
 
 function renderCvProbBody(type) {
@@ -5080,6 +5896,17 @@ function renderCvProbBody(type) {
   refs.cvProbSummary.textContent = '每开 1 个 ' + CHEST_META[type].title +
     '，固定掉落 ' + info.fixedCount + ' 件物品。' + info.highlight + '。';
   refs.cvProbList.innerHTML = '';
+  // 特殊行：本宝箱提供的宝箱积分
+  var pts = POINTS_PER_CHEST[type] || 0;
+  var ptsRow = document.createElement('div');
+  ptsRow.className = 'cv-prob-row cv-prob-row-points';
+  ptsRow.innerHTML =
+    '<div class="cv-prob-row-icon" style="background:radial-gradient(circle at 35% 30%, #fff7c8 0%, #ffd96a 38%, #ff9c1c 78%, #c46b08 100%);color:#fff;text-shadow:0 1px 2px rgba(80,40,0,0.85);border-color:#c46b08;">★</div>'
+    + '<div class="cv-prob-row-name">'
+      + '<div>宝箱积分 ×' + pts + '</div>'
+    + '</div>'
+    + '<div class="cv-prob-row-pct" style="color:#c46b08;">必得</div>';
+  refs.cvProbList.appendChild(ptsRow);
   info.items.forEach(function(item) {
     var row = document.createElement('div');
     row.className = 'cv-prob-row';
@@ -5121,37 +5948,146 @@ function cvOpenSelected(mode) {
     if (typeof showToast === 'function') showToast('当前选中的宝箱库存不足');
     return;
   }
-  var amount = mode === 'all' ? have : 1;
+  var amount = mode === 'all' ? Math.min(have, 15) : Math.min(have, mode);
   chestInventory[type] = have - amount;
   openState.active = true;
   openState.type = type;
   openState.amount = amount;
   openState.rewards = buildChestRewards(type, amount);
 
-  // 累加积分（先记录开启前快照，恭喜界面动画用）
-  var gainedPoints = POINTS_PER_CHEST[type] * amount;
-  openState.pointsGained = gainedPoints;
-  openState.pointsBeforeLevel = chestLevelState.level;
-  openState.pointsBeforeValue = chestLevelState.points;
-  applyPointsGain(gainedPoints);
-  openState.pointsAfterLevel = chestLevelState.level;
-  openState.pointsAfterValue = chestLevelState.points;
+  // 累加积分与经验（记录开启前快照，恭喜界面动画可能需要）
+  openState.pointsGained = (POINTS_PER_CHEST[type] || 0) * amount;
+  openState.xpGained = (XP_PER_CHEST[type] || 0) * amount;
+  openState.cycleBeforeIndex = chestState.cycleIndex;
+  openState.cycleBeforePoints = chestState.cyclePoints;
+  openState.xpBefore = chestState.xp;
+  openState.levelBefore = chestState.level;
+  applyChestOpening(type, amount);
+  openState.cycleAfterIndex = chestState.cycleIndex;
+  openState.cycleAfterPoints = chestState.cyclePoints;
 
   renderChestVaultScreen();
   showCvOpenOverlay();
 }
 
-function cvOpenAgain() {
-  // 关闭恭喜界面 → 再开 1 个同类型
+function cvOpenAgain(amount) {
+  // 关闭恭喜界面 → 再开同类型，数量遵循 min(库存, 15)
+  var n = (typeof amount === 'number' && amount > 0) ? amount : 1;
   hideCvResultOverlay();
   setTimeout(function() {
-    cvOpenSelected(1);
+    cvOpenSelected(n);
   }, 60);
 }
 
 function cvCloseResult() {
+  // 记录本次开启产生的积分/经验变化快照，用于后续飞行动效
+  var snapshot = {
+    pointsGained: openState.pointsGained || 0,
+    beforeIdx: openState.cycleBeforeIndex,
+    beforePts: openState.cycleBeforePoints,
+    afterIdx: openState.cycleAfterIndex,
+    afterPts: openState.cycleAfterPoints
+  };
   hideCvResultOverlay();
-  // pendingReward 不再自动弹出，仅让 CTA 亮起（renderChestVaultScreen 中处理）
+  // 后置动效：从主舒台宝箱飞出“粒子”到上方进度条，进度条同步增长
+  flyPointsToScoreBar(snapshot);
+}
+
+function flyPointsToScoreBar(snap) {
+  var src = refs.cvStageChest;
+  var dst = refs.cvScoreBarFill && refs.cvScoreBarFill.parentNode;
+  if (!src || !dst) { renderChestVaultScreen(); return; }
+  var s = src.getBoundingClientRect();
+  var t = dst.getBoundingClientRect();
+  // 临时将进度条表现回退到 before 状态，等粒子到达后再逐步推到 after
+  var beforeIdx = snap.beforeIdx;
+  var beforePts = snap.beforePts;
+  var afterIdx  = snap.afterIdx;
+  var afterPts  = snap.afterPts;
+  if (beforeIdx == null) { renderChestVaultScreen(); return; }
+  // 先设为开启前状态（不动画）
+  var bThr = CYCLE_THRESHOLDS[beforeIdx];
+  refs.cvScoreBarFill.style.transition = 'none';
+  refs.cvScoreBarFill.style.width = (beforePts / bThr * 100) + '%';
+  if (refs.cvScoreBarLabel) refs.cvScoreBarLabel.textContent = beforePts + '/' + bThr;
+  void refs.cvScoreBarFill.offsetWidth;
+  refs.cvScoreBarFill.style.transition = '';
+
+  // 生成 6 个粒子错开飞出
+  var N = 6;
+  for (var i = 0; i < N; i++) {
+    (function(i) {
+      setTimeout(function() {
+        spawnPointParticle(s, t);
+      }, i * 70);
+    })(i);
+  }
+
+  // 总时长 ≈ N*70 + 520ms送达；到达后推进进度条动画
+  setTimeout(function() {
+    animateScoreBarTo(beforeIdx, beforePts, afterIdx, afterPts);
+  }, N * 70 + 320);
+}
+
+function spawnPointParticle(s, t) {
+  var p = document.createElement('div');
+  p.className = 'cv-fly-point';
+  p.textContent = '★';
+  // 随机在源区域中心附近偶动
+  var sx = s.left + s.width / 2 + (Math.random() - 0.5) * 30;
+  var sy = s.top  + s.height / 2 + (Math.random() - 0.5) * 20;
+  var tx = t.left + t.width * (0.2 + Math.random() * 0.6);
+  var ty = t.top  + t.height / 2;
+  p.style.left = sx + 'px';
+  p.style.top  = sy + 'px';
+  document.body.appendChild(p);
+  requestAnimationFrame(function() {
+    p.style.transform = 'translate(-50%,-50%) translate(' + (tx - sx) + 'px,' + (ty - sy) + 'px) scale(0.6)';
+    p.style.opacity = '0';
+  });
+  setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p); }, 620);
+}
+
+function animateScoreBarTo(bIdx, bPts, aIdx, aPts) {
+  var bThr = CYCLE_THRESHOLDS[bIdx];
+  var aThr = CYCLE_THRESHOLDS[aIdx];
+  if (aIdx === bIdx) {
+    // 同段：直接增长
+    refs.cvScoreBarFill.style.width = (aPts / aThr * 100) + '%';
+    animateNumberLabel(bPts, aPts, aThr, 600, function() {
+      renderChestVaultScreen();   // 同步 CTA、实际状态
+    });
+  } else {
+    // 跨段：先涨满 → 闪一下 → 重置为 0 → 推到 aPts
+    refs.cvScoreBarFill.style.width = '100%';
+    animateNumberLabel(bPts, bThr, bThr, 500, function() {
+      // 闪一下后重置
+      refs.cvScoreBarFill.style.transition = 'none';
+      refs.cvScoreBarFill.style.width = '0%';
+      if (refs.cvScoreBarLabel) refs.cvScoreBarLabel.textContent = '0/' + aThr;
+      void refs.cvScoreBarFill.offsetWidth;
+      refs.cvScoreBarFill.style.transition = '';
+      setTimeout(function() {
+        refs.cvScoreBarFill.style.width = (aPts / aThr * 100) + '%';
+        animateNumberLabel(0, aPts, aThr, 500, function() {
+          renderChestVaultScreen();
+        });
+      }, 80);
+    });
+  }
+}
+
+function animateNumberLabel(from, to, denom, duration, onDone) {
+  if (!refs.cvScoreBarLabel) { if (onDone) onDone(); return; }
+  var start = performance.now();
+  function step(now) {
+    var k = Math.min(1, (now - start) / duration);
+    var v = Math.round(from + (to - from) * k);
+    refs.cvScoreBarLabel.textContent = v + '/' + denom;
+    if (k < 1) requestAnimationFrame(step);
+    else if (onDone) onDone();
+  }
+  requestAnimationFrame(step);
 }
 
 function showCvOpenOverlay() {
@@ -5196,9 +6132,14 @@ function showCvResultOverlay() {
     card.appendChild(amt);
     refs.cvResultGrid.appendChild(card);
   });
-  // 再开按钮：库存还有同类型则显示
+  // 再开按钮：库存还有同类型则显示，文案与开启数量遵循 min(remaining, 15)
   var remaining = chestInventory[openState.type] || 0;
-  refs.cvResultAgainBtn.style.display = remaining > 0 ? 'inline-block' : 'none';
+  var againAmount = Math.min(remaining, 15);
+  if (refs.cvResultAgainBtn) {
+    refs.cvResultAgainBtn.style.display = remaining > 0 ? 'inline-block' : 'none';
+    refs.cvResultAgainBtn.textContent = '再开 ' + againAmount + ' 个';
+    refs.cvResultAgainBtn.onclick = function() { cvOpenAgain(againAmount); };
+  }
   refs.cvResultOverlay.classList.add('active');
   setActiveSceneChip('chest-result');
 
@@ -5206,7 +6147,7 @@ function showCvResultOverlay() {
   renderCvResultPoints();
 }
 
-/* 恭喜界面 · 积分进度条动画 */
+/* 恭喜界面 · 积分循环条动画（新系统：cycleIndex/cyclePoints + 当前段阈值） */
 function renderCvResultPoints() {
   var amtEl   = document.getElementById('cv-result-points-amt');
   var pillCur = document.getElementById('cv-result-mini-pill-cur');
@@ -5216,60 +6157,57 @@ function renderCvResultPoints() {
   var label   = document.getElementById('cv-result-mini-label');
   if (!amtEl || !fill) return;
 
-  var gained    = openState.pointsGained || 0;
-  var beforeLv  = openState.pointsBeforeLevel  || 1;
-  var beforePts = openState.pointsBeforeValue  || 0;
-  var afterLv   = openState.pointsAfterLevel   || beforeLv;
-  var afterPts  = openState.pointsAfterValue   || beforePts;
-  var maxLv     = SEASON_INFO.maxLevel;
+  var gainedP = openState.pointsGained || 0;
+  var gainedX = openState.xpGained || 0;
+  var beforeIdx = openState.cycleBeforeIndex != null ? openState.cycleBeforeIndex : chestState.cycleIndex;
+  var beforePts = openState.cycleBeforePoints != null ? openState.cycleBeforePoints : chestState.cyclePoints;
+  var afterIdx  = openState.cycleAfterIndex  != null ? openState.cycleAfterIndex  : chestState.cycleIndex;
+  var afterPts  = openState.cycleAfterPoints != null ? openState.cycleAfterPoints : chestState.cyclePoints;
 
-  amtEl.textContent = '+' + gained + ' 积分';
+  var beforeThreshold = CYCLE_THRESHOLDS[beforeIdx];
+  var afterThreshold  = CYCLE_THRESHOLDS[afterIdx];
 
-  // 初始：开启前的等级与进度
-  pillCur.textContent = 'Lv.' + beforeLv;
-  pillNxt.textContent = beforeLv >= maxLv ? 'MAX' : ('Lv.' + (beforeLv + 1));
+  amtEl.textContent = '+' + gainedP + ' 积分 · +' + gainedX + ' 经验';
+
+  // 初始：开启前的段位与进度
+  pillCur.textContent = '段 ' + (beforeIdx + 1) + '/5';
+  pillNxt.textContent = '阈值 ' + beforeThreshold;
   pillCur.classList.remove('level-up-flash');
   pillNxt.classList.remove('level-up-flash');
   flash.classList.remove('flashing');
-  // 关闭过渡，瞬间归位
   fill.style.transition = 'none';
-  fill.style.width = (beforePts / POINTS_PER_LEVEL * 100) + '%';
-  label.textContent = beforePts + ' / ' + POINTS_PER_LEVEL;
-
-  // 强制 reflow，再启动动画
+  fill.style.width = (beforePts / beforeThreshold * 100) + '%';
+  label.textContent = beforePts + ' / ' + beforeThreshold;
   void fill.offsetWidth;
   fill.style.transition = '';
 
   setTimeout(function() {
-    if (afterLv === beforeLv) {
-      // 不升级：直接涨到 afterPts
-      fill.style.width = (afterPts / POINTS_PER_LEVEL * 100) + '%';
-      label.textContent = afterPts + ' / ' + POINTS_PER_LEVEL;
-      flash.style.width = (afterPts / POINTS_PER_LEVEL * 100) + '%';
+    if (afterIdx === beforeIdx) {
+      // 同段：直接涨到 afterPts
+      fill.style.width = (afterPts / afterThreshold * 100) + '%';
+      label.textContent = afterPts + ' / ' + afterThreshold;
+      flash.style.width = (afterPts / afterThreshold * 100) + '%';
       flash.classList.add('flashing');
     } else {
-      // 升级：先涨满 → 切等级 → 再涨到 afterPts
+      // 跨段：先涨满 → 切到下一段 → 再涨到 afterPts
       fill.style.width = '100%';
-      label.textContent = POINTS_PER_LEVEL + ' / ' + POINTS_PER_LEVEL;
+      label.textContent = beforeThreshold + ' / ' + beforeThreshold;
       flash.style.width = '100%';
       flash.classList.add('flashing');
       setTimeout(function() {
-        // 切换等级
-        pillCur.textContent = 'Lv.' + afterLv;
-        pillNxt.textContent = afterLv >= maxLv ? 'MAX' : ('Lv.' + (afterLv + 1));
+        pillCur.textContent = '段 ' + (afterIdx + 1) + '/5';
+        pillNxt.textContent = '阈值 ' + afterThreshold;
         pillCur.classList.add('level-up-flash');
-        // 进度归零（瞬间）
         fill.style.transition = 'none';
         fill.style.width = '0%';
         flash.classList.remove('flashing');
         flash.style.width = '0%';
         void fill.offsetWidth;
         fill.style.transition = '';
-        // 涨到最终进度
         setTimeout(function() {
-          fill.style.width = (afterPts / POINTS_PER_LEVEL * 100) + '%';
-          label.textContent = afterPts + ' / ' + POINTS_PER_LEVEL;
-          flash.style.width = (afterPts / POINTS_PER_LEVEL * 100) + '%';
+          fill.style.width = (afterPts / afterThreshold * 100) + '%';
+          label.textContent = afterPts + ' / ' + afterThreshold;
+          flash.style.width = (afterPts / afterThreshold * 100) + '%';
           flash.classList.add('flashing');
         }, 60);
       }, 950);
@@ -5547,49 +6485,53 @@ function renderVaultScreen() {
 function renderChestVaultScreen() {
   if (!refs.screenChest) return;
 
-  // —— 等级 / 积分（顶部已合并到积分条）
-  var lv = chestLevelState.level;
-  var maxLv = SEASON_INFO.maxLevel;
-  var atMax = isMaxLevel();
-  var pct = Math.min(100, chestLevelState.points / POINTS_PER_LEVEL * 100);
-  if (refs.cvScoreEmblemLevel) refs.cvScoreEmblemLevel.textContent = lv;
+  // —— 左上角等级徽章
+  var lv = chestState.level;
+  if (refs.cvLevelBadgeNum) refs.cvLevelBadgeNum.textContent = lv;
+  if (refs.cvLevelBadge) refs.cvLevelBadge.classList.toggle('has-up', canLevelUp());
 
-  // —— 积分进度条
-  var diff = POINTS_PER_LEVEL - chestLevelState.points;
-  if (chestLevelState.pendingReward) {
-    refs.cvScoreText.textContent = atMax ? '满级奖励宝箱可领取' : '升级奖励宝箱可领取';
-  } else if (atMax) {
-    refs.cvScoreText.textContent = '还差 ' + diff + ' 积分获得额外宝箱';
-  } else {
-    refs.cvScoreText.textContent = '还差 ' + diff + ' 积分升级';
-  }
+  // —— 积分循环进度条（玩家可见：仅进度条 + 数字比）
+  var idx = chestState.cycleIndex;
+  var threshold = CYCLE_THRESHOLDS[idx];
+  var pts = chestState.cyclePoints;
+  var pct = Math.min(100, pts / threshold * 100);
+  var pending = isCycleReady();
+
+  // 玩家不需要看到具体循环数值，仅以进度条 + N/M 文本 + CTA 反馈
   refs.cvScoreBarFill.style.width = pct + '%';
-  refs.cvScoreVal.textContent = '积分值 ' + chestLevelState.points + '/' + POINTS_PER_LEVEL;
+  if (refs.cvScoreBarLabel) {
+    refs.cvScoreBarLabel.textContent = pts + '/' + threshold;
+  }
 
-  // CTA 按钮（领取奖励）：始终可点击，无 pending 时点击会弹提示
-  var pending = chestLevelState.pendingReward;
-  refs.cvScoreCta.classList.toggle('ready', !!pending);
+  // CTA 按钮：仅 .ready 状态点亮 + 动效；未就绪时背景置灰（宝箱仍亮）
+  refs.cvScoreCta.classList.toggle('ready', pending);
   refs.cvScoreCta.disabled = false;
   clearQualityClasses(refs.cvScoreCtaChest);
-  refs.cvScoreCtaChest.classList.add('q-' + (pending ? pending.type : getQualityForLevel(Math.min(maxLv, lv + 1))));
+  // CTA 预览：有可领取时为当前段品质；未就绪时为当前循环位置对应品质
+  var ctaQuality = getCycleQuality(lv, idx);
+  refs.cvScoreCtaChest.classList.add('q-' + ctaQuality);
+  if (refs.cvScoreCtaFlag) refs.cvScoreCtaFlag.style.display = pending ? 'flex' : 'none';
 
   // —— 中央舞台
   var type = resolveSelectedChestType();
   var meta = CHEST_META[type];
   var count = chestInventory[type] || 0;
   refs.cvStageName.textContent = meta.title;
-  refs.cvStageTip.textContent = getProbHighlightLine(type);
+  // cv-stage-tip \u5df2\u79fb\u9664\uff0c\u6982\u7387\u8bf4\u660e\u4ec5\u901a\u8fc7\u201c?\u201d\u6309\u94ae\u67e5\u770b
   clearQualityClasses(refs.cvStageChest);
   refs.cvStageChest.classList.add('q-' + type);
   refs.cvStageCount.textContent = '×' + formatNumber(count);
   refs.cvStageCount.style.display = count > 0 ? 'block' : 'none';
   refs.cvStageEmpty.style.display = count > 0 ? 'none' : 'block';
   refs.cvStageEmpty.textContent = meta.shortTitle + '宝箱暂无库存';
+  // 按钮：单一开启按钮，上限 15 个/次；库存<15 时为实际库存量
+  var openAmount = Math.min(count, 15);
   refs.cvOpenOneBtn.disabled = count <= 0 || openState.active;
-  refs.cvOpenAllBtn.disabled = count <= 0 || openState.active;
-  refs.cvOpenAllBtn.textContent = count > 1 ? '全部开启 ×' + formatNumber(count) : '全部开启';
+  refs.cvOpenOneBtn.textContent = '开启 ' + openAmount + ' 个';
+  refs.cvOpenOneBtn.onclick = function() { cvOpenSelected(openAmount); };
+  if (refs.cvOpenAllBtn) refs.cvOpenAllBtn.style.display = 'none';
 
-  // —— 底部 5 槽（未获得也可点选，仅按钮置灰）
+  // —— 底部 5 槽
   refs.cvTraySlots.forEach(function(slot) {
     var slotType = slot.getAttribute('data-cv-type');
     var slotCount = chestInventory[slotType] || 0;
