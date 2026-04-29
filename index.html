@@ -1012,6 +1012,22 @@ body.phase-preview .main-brief-rules { display: block; }
   box-sizing: border-box;
   user-select: none;
 }
+/* 赛季拖拽条（30 天）：复用 ts-* 样式 */
+.season-scrubber {
+  width: 390px;
+  margin: 12px auto 0;
+  padding: 10px 14px 14px;
+  background: rgba(7,16,29,0.55);
+  border: 1.5px solid rgba(200,168,78,0.45);
+  border-radius: 8px;
+  box-sizing: border-box;
+  user-select: none;
+}
+.cs-track .cs-seg {
+  background: linear-gradient(180deg, rgba(200,168,78,0.55), rgba(120,88,30,0.65));
+  border-radius: 14px;
+  color: #fff8e0;
+}
 .ts-head {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 10px;
@@ -1687,6 +1703,83 @@ body.phase-preview .main-brief-rules { display: block; }
   display: none;
 }
 .cv-stage-empty.show { display: block; }
+
+/* \u5b9d\u7bb1\u81ea\u52a8\u5f00\u542f\u5012\u8ba1\u65f6\uff08\u5728\u5927\u5b9d\u7bb1\u4e0b\u65b9\uff09 */
+.cv-stage-autoopen {
+  position: relative;
+  margin-top: 6px;
+  padding: 5px 14px;
+  background: rgba(120,40,30,0.10);
+  border: 1px dashed rgba(176,68,40,0.6);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #7a3010;
+  text-align: center;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.cv-stage-autoopen-cd {
+  font-weight: 900;
+  color: #b03a18;
+  margin-right: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.cv-stage-autoopen-text { color: #7a3010; }
+
+/* "!" info button */
+.cv-stage-autoopen-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #b03a18;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  font-family: serif;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.cv-stage-autoopen-info:hover { background: #c84a26; }
+
+/* tip popup, hidden by default */
+.cv-stage-autoopen-tip {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  min-width: 220px;
+  padding: 10px 14px;
+  background: rgba(35,20,12,0.96);
+  color: #fff8e6;
+  font-size: 12px;
+  line-height: 1.6;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  white-space: nowrap;
+  text-align: center;
+  letter-spacing: 0.3px;
+  z-index: 50;
+}
+.cv-stage-autoopen-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(35,20,12,0.96);
+}
+.cv-stage-autoopen-tip.show { display: block; }
+
 .cv-stage-actions {
   width: 100%;
   padding-top: 14px;
@@ -2480,8 +2573,12 @@ body.phase-preview .main-brief-rules { display: block; }
   text-align: center;
 }
 
-/* ─── 左上角宝箱等级徽章 ─── */
-.cv-title-bar { position: relative; }
+/* “等级徽章·位于积分条左侧”变体：去掉绝对定位，随 flex 摄入 */
+.cv-level-badge.cv-level-badge-inline {
+  position: relative;
+  left: auto; top: auto;
+  flex-shrink: 0;
+}
 .cv-level-badge {
   position: absolute;
   left: 12px;
@@ -4051,16 +4148,16 @@ body.phase-preview .main-brief-rules { display: block; }
 
     <!-- 标题栏 -->
     <div class="cv-title-bar">
-      <button class="cv-level-badge" id="cv-level-badge" onclick="openChestLevelModal()" aria-label="查看宝箱等级">
+      <div class="cv-title-text">宝箱</div>
+    </div>
+
+    <!-- 积分循环进度区（左侧等级徽章 + 进度条 + 待领宝箱按钮） -->
+    <div class="cv-score-strip">
+      <button class="cv-level-badge cv-level-badge-inline" id="cv-level-badge" onclick="openChestLevelModal()" aria-label="查看宝箱等级">
         <span class="cv-level-badge-key">Lv</span>
         <span class="cv-level-badge-num" id="cv-level-badge-num">3</span>
         <span class="cv-level-badge-dot" id="cv-level-badge-dot">!</span>
       </button>
-      <div class="cv-title-text">宝箱</div>
-    </div>
-
-    <!-- 积分循环进度区（玩家可见：仅进度条 + 待领取宝箱按钮，循环规则不外露） -->
-    <div class="cv-score-strip">
       <div class="cv-score-mid">
         <div class="cv-score-bar">
           <div class="cv-score-bar-fill" id="cv-score-bar-fill"></div>
@@ -4094,6 +4191,17 @@ body.phase-preview .main-brief-rules { display: block; }
             <div class="cv-chest-art"></div>
           </div>
           <div class="cv-stage-count" id="cv-stage-count">x0</div>
+        </div>
+      </div>
+
+      <!-- 宝箱自动开启倒计时（下一等级开放前会自动开启所有宝箱） -->
+      <div class="cv-stage-autoopen" id="cv-stage-autoopen">
+        <span class="cv-stage-autoopen-cd" id="cv-stage-autoopen-cd">--天 00:00:00</span>
+        <span class="cv-stage-autoopen-text">后自动开启</span>
+        <button class="cv-stage-autoopen-info" type="button" aria-label="查看详情" onclick="toggleAutoOpenTip(event)">!</button>
+        <div class="cv-stage-autoopen-tip" id="cv-stage-autoopen-tip">
+          <div>奖励将会发送到邮箱</div>
+          <div>宝箱积分将会自动结算，积分宝箱也会自动开启</div>
         </div>
       </div>
 
@@ -4222,7 +4330,10 @@ body.phase-preview .main-brief-rules { display: block; }
         <div class="cv-prob-body">
           <div class="cv-prob-summary" id="cv-prob-summary" style="display:none"></div>
           <div class="cv-prob-list" id="cv-prob-list"></div>
-          <div class="cv-prob-footnote" id="cv-prob-footnote">宝箱将在 <span id="cv-prob-season-cd">--天 00:00:00</span> 后自动开启，奖励将会发送到邮箱。</div>
+          <div class="cv-prob-footnote" id="cv-prob-footnote">
+            宝箱将在 <span id="cv-prob-season-cd">--天 00:00:00</span> 后自动开启，奖励将会发送到邮箱。<br>
+            宝箱积分将会自动结算，积分宝箱也会自动开启。
+          </div>
         </div>
       </div>
     </div>
@@ -4576,6 +4687,26 @@ body.phase-preview .main-brief-rules { display: block; }
   </div>
 
   </div><!-- /game-container -->
+
+  <!-- 赛季拖拽条：30 天，拖动预览各天宝箱等级开放状态 -->
+  <div class="season-scrubber" id="chest-season-scrubber">
+    <div class="ts-head">
+      <span class="ts-head-title">🗓 拖动赛季轴预览宝箱等级开放（赛季共 30 天）</span>
+      <span class="ts-head-time" id="cs-head-day">第 1 天</span>
+    </div>
+    <div class="ts-track cs-track" id="cs-track">
+      <div class="ts-seg cs-seg" style="left:0%; width:100%;">赛季 D1 – D30</div>
+      <div class="ts-tick" style="left:0%;"><span>D1</span></div>
+      <div class="ts-tick" style="left:20.69%;"><span>D7</span></div>
+      <div class="ts-tick" style="left:34.48%;"><span>D11</span></div>
+      <div class="ts-tick" style="left:48.28%;"><span>D15</span></div>
+      <div class="ts-tick" style="left:62.07%;"><span>D19</span></div>
+      <div class="ts-tick" style="left:75.86%;"><span>D23</span></div>
+      <div class="ts-tick" style="left:89.66%;"><span>D27</span></div>
+      <div class="ts-tick" style="left:100%;"><span>D30</span></div>
+      <div class="ts-thumb" id="cs-thumb" style="left:0%;"></div>
+    </div>
+  </div>
 
   <!-- 时间进度条：宝箱系统文档不需要时间轴，已隐藏 -->
   <div class="time-scrubber" id="time-scrubber" style="display:none;">
@@ -5445,6 +5576,72 @@ var SEASON_INFO = {
   seasonEndTime: new Date(Date.now() + 13 * 24 * 3600 * 1000 + 23 * 3600 * 1000 + 24 * 60 * 1000 + 54 * 1000).getTime()
 };
 
+// 等级开放时间表（赛季 30 天）：服务器第几天起开放对应等级
+// Lv1-3 为开服默认；Lv4 起每 4 天解锁一级，Lv9 在 D27 解锁
+var LEVEL_UNLOCK_DAY = {
+  1: 1, 2: 1, 3: 1,
+  4: 7, 5: 11, 6: 15, 7: 19, 8: 23, 9: 27
+};
+var SEASON_TOTAL_DAYS = 30;
+
+// 当前演示赛季日（由拖拽条控制）；day 区间 [1,30]
+// dayAnchorMs 为"day 起始时刻"的 wall-clock 时间，用于让倒计时按真实秒数前进
+var chestSeason = {
+  day: 1,
+  dayAnchorMs: Date.now()
+};
+function setChestDay(day) {
+  day = Math.max(1, Math.min(SEASON_TOTAL_DAYS, Math.round(day)));
+  chestSeason.day = day;
+  chestSeason.dayAnchorMs = Date.now(); // 拖动后将"该日起点"重置为当前时刻
+  // 等级超出当前开放上限则回退（演示中防止 Lv 越界，例如玩家先升到 Lv6 又拖回 D1）
+  var dayMax = getCurrentMaxLevel(day);
+  if (chestState.level > dayMax) {
+    chestState.level = dayMax;
+    chestState.xp = 0;
+  }
+  // 头部标签
+  var head = document.getElementById('cs-head-day');
+  if (head) head.textContent = '第 ' + day + ' 天';
+  // 同步刷新各处展示
+  if (typeof renderChestVaultScreen === 'function') {
+    try { renderChestVaultScreen(); } catch (e) {}
+  }
+  if (typeof renderLevelInfoModal === 'function' && refs.cvLevelinfoOverlay && refs.cvLevelinfoOverlay.classList.contains('active')) {
+    try { renderLevelInfoModal(); } catch (e) {}
+  }
+}
+// 获取指定 day 时已开放的最大等级
+function getCurrentMaxLevel(day) {
+  var d = (day == null) ? chestSeason.day : day;
+  var max = 0;
+  for (var lv = 1; lv <= 9; lv++) {
+    if (LEVEL_UNLOCK_DAY[lv] <= d) max = lv;
+  }
+  return max;
+}
+// 下一个尚未开放的等级 / 解锁日；都已解锁返回 null
+function getNextUnlock(day) {
+  var d = (day == null) ? chestSeason.day : day;
+  for (var lv = 1; lv <= 9; lv++) {
+    if (LEVEL_UNLOCK_DAY[lv] > d) {
+      return { level: lv, day: LEVEL_UNLOCK_DAY[lv] };
+    }
+  }
+  return null;
+}
+// 距离下一次"全宝箱自动开启"的剩余毫秒
+//   下一等级解锁日开始时刻自动开启所有持有宝箱；
+//   若已无未解锁等级，则在赛季结束（D31 起点）开启
+function getAutoOpenRemainMs() {
+  var nu = getNextUnlock(chestSeason.day);
+  var targetDay = nu ? nu.day : (SEASON_TOTAL_DAYS + 1);
+  var fullDaysAhead = targetDay - chestSeason.day; // ≥1
+  var totalMs = fullDaysAhead * 24 * 3600 * 1000;
+  var elapsed = Date.now() - chestSeason.dayAnchorMs;
+  return Math.max(0, totalMs - elapsed);
+}
+
 function getCycleQuality(level, idx) {
   var lv = Math.max(1, Math.min(level, 10));
   var arr = LEVEL_CYCLE_QUALITY[lv];
@@ -5543,7 +5740,8 @@ function cycleSelected(dir) {
 }
 
 function isMaxLevel() {
-  return chestState.level >= SEASON_INFO.maxLevel;
+  // "已达上限"按当前赛季日开放等级动态判定
+  return chestState.level >= getCurrentMaxLevel();
 }
 function canLevelUp() {
   return !isMaxLevel() && chestState.xp >= getXpToNext(chestState.level);
@@ -5683,6 +5881,24 @@ function cvCloseLevelup() {
   if (refs.cvLevelupOverlay) refs.cvLevelupOverlay.classList.remove('active');
 }
 
+/* ─── 自动开启提示气泡 ─── */
+function toggleAutoOpenTip(e) {
+  if (e) e.stopPropagation();
+  var tip = document.getElementById('cv-stage-autoopen-tip');
+  if (!tip) return;
+  var willShow = !tip.classList.contains('show');
+  tip.classList.toggle('show', willShow);
+  if (willShow) {
+    setTimeout(function () {
+      document.addEventListener('click', closeAutoOpenTipOnce, { once: true });
+    }, 0);
+  }
+}
+function closeAutoOpenTipOnce() {
+  var tip = document.getElementById('cv-stage-autoopen-tip');
+  if (tip) tip.classList.remove('show');
+}
+
 /* ─── 宝箱等级查看 / 升级界面 ─── */
 function openChestLevelModal() {
   if (!refs.cvLevelinfoOverlay) return;
@@ -5730,9 +5946,10 @@ function renderLevelInfoModal() {
   if (refs.cvLevelinfoSeason) {
     refs.cvLevelinfoSeason.innerHTML = '等级影响积分奖励宝箱的品质';
   }
-  // 列表：仅列出已开放等级（1..maxLevel）；未开放以一条倒计时占位
+  // 列表：仅列出已开放等级（1..当前天数对应的 maxLevel）；未开放以一条倒计时占位
+  var dayMaxLevel = getCurrentMaxLevel();
   var listHtml = '';
-  for (var i = 1; i <= SEASON_INFO.maxLevel; i++) {
+  for (var i = 1; i <= dayMaxLevel; i++) {
     var rowCls = 'cv-levelinfo-row';
     var tag = '';
     if (i === lv) { rowCls += ' current'; tag = '当前'; }
@@ -5750,11 +5967,12 @@ function renderLevelInfoModal() {
       + '<div class="cv-levelinfo-row-tag">' + tag + '</div>'
       + '</div>';
   }
-  // 倒计时占位行（下半期开放剩余）
-  if (SEASON_INFO.fullMaxLevel > SEASON_INFO.maxLevel) {
+  // 未开放等级倒计时：只顯示一条「下一个将在 X 天 hh:mm:ss 后开放」
+  var nu = getNextUnlock();
+  if (nu) {
     listHtml += '<div class="cv-levelinfo-unlock">'
-      + '<span class="cv-levelinfo-unlock-text">Lv ' + (SEASON_INFO.maxLevel + 1) + ' ～ Lv ' + SEASON_INFO.fullMaxLevel + ' 将在</span>'
-      + '<span class="cv-levelinfo-unlock-cd" id="cv-levelinfo-unlock-cd">' + formatCountdown(SEASON_INFO.unlockTargetTime - Date.now()) + '</span>'
+      + '<span class="cv-levelinfo-unlock-text">Lv ' + nu.level + ' 将在</span>'
+      + '<span class="cv-levelinfo-unlock-cd" id="cv-levelinfo-unlock-cd">' + formatCountdown(getAutoOpenRemainMs()) + '</span>'
       + '<span class="cv-levelinfo-unlock-text">后开放</span>'
       + '</div>';
   }
@@ -5844,7 +6062,7 @@ function startLevelinfoCountdown() {
   levelinfoCountdownTimer = setInterval(function() {
     var el = document.getElementById('cv-levelinfo-unlock-cd');
     if (!el) { stopLevelinfoCountdown(); return; }
-    el.textContent = formatCountdown(SEASON_INFO.unlockTargetTime - Date.now());
+    el.textContent = formatCountdown(getAutoOpenRemainMs());
   }, 1000);
 }
 function stopLevelinfoCountdown() {
@@ -5877,13 +6095,77 @@ function startProbSeasonCountdown() {
   function tick() {
     var el = document.getElementById('cv-prob-season-cd');
     if (!el) { stopProbSeasonCountdown(); return; }
-    el.textContent = formatCountdown(SEASON_INFO.seasonEndTime - Date.now());
+    el.textContent = formatCountdown(getAutoOpenRemainMs());
   }
   tick();
   probSeasonCountdownTimer = setInterval(tick, 1000);
 }
 function stopProbSeasonCountdown() {
   if (probSeasonCountdownTimer) { clearInterval(probSeasonCountdownTimer); probSeasonCountdownTimer = null; }
+}
+
+/* 大宝箱下方"自动开启倒计时"驱动 */
+var stageAutoOpenTimer = null;
+function startStageAutoOpenCountdown() {
+  stopStageAutoOpenCountdown();
+  function tick() {
+    var el = document.getElementById('cv-stage-autoopen-cd');
+    if (!el) { stopStageAutoOpenCountdown(); return; }
+    el.textContent = formatCountdown(getAutoOpenRemainMs());
+  }
+  tick();
+  stageAutoOpenTimer = setInterval(tick, 1000);
+}
+function stopStageAutoOpenCountdown() {
+  if (stageAutoOpenTimer) { clearInterval(stageAutoOpenTimer); stageAutoOpenTimer = null; }
+}
+
+/* 赛季拖拽条（30 天）初始化 */
+function initChestSeasonScrubber() {
+  var track = document.getElementById('cs-track');
+  var thumb = document.getElementById('cs-thumb');
+  if (!track || !thumb) return;
+  function ratioToDay(r) { return Math.max(1, Math.min(30, Math.round(1 + r * 29))); }
+  function dayToRatio(d) { return (d - 1) / 29; }
+  function pointerToRatio(clientX) {
+    var rect = track.getBoundingClientRect();
+    var r = (clientX - rect.left) / rect.width;
+    if (r < 0) r = 0; if (r > 1) r = 1;
+    return r;
+  }
+  function applyClient(x) {
+    var d = ratioToDay(pointerToRatio(x));
+    thumb.style.left = (dayToRatio(d) * 100) + '%';
+    setChestDay(d);
+  }
+  var dragging = false;
+  function onDown(e) {
+    dragging = true;
+    var x = e.touches ? e.touches[0].clientX : e.clientX;
+    applyClient(x);
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    var x = e.touches ? e.touches[0].clientX : e.clientX;
+    applyClient(x);
+  }
+  function onUp() { dragging = false; }
+  track.addEventListener('mousedown', onDown);
+  thumb.addEventListener('mousedown', onDown);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  track.addEventListener('touchstart', onDown, { passive: false });
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onUp);
+  // 默认 D1
+  thumb.style.left = '0%';
+  setChestDay(1);
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initChestSeasonScrubber);
+} else {
+  initChestSeasonScrubber();
 }
 
 function renderCvProbBody(type) {
@@ -6524,6 +6806,14 @@ function renderChestVaultScreen() {
   refs.cvStageCount.style.display = count > 0 ? 'block' : 'none';
   refs.cvStageEmpty.style.display = count > 0 ? 'none' : 'block';
   refs.cvStageEmpty.textContent = meta.shortTitle + '宝箱暂无库存';
+  // 宝箱自动开启倒计时：全局倒计时，有宝箱才顯示
+  var ao = document.getElementById('cv-stage-autoopen');
+  if (ao) {
+    var anyChest = getTotalChestCount() > 0;
+    ao.style.display = anyChest ? '' : 'none';
+    if (anyChest) startStageAutoOpenCountdown();
+    else stopStageAutoOpenCountdown();
+  }
   // 按钮：单一开启按钮，上限 15 个/次；库存<15 时为实际库存量
   var openAmount = Math.min(count, 15);
   refs.cvOpenOneBtn.disabled = count <= 0 || openState.active;
