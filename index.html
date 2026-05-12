@@ -1001,6 +1001,99 @@ body.phase-preview .main-brief-rules { display: block; }
 }
 .doc-jump-btn:hover { background: rgba(200,168,78,0.12); }
 
+.doc-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.doc-jump-btn.doc-play-btn {
+  color: #7a3b00;
+  background: #fff7e3;
+  border-color: rgba(184,101,26,0.42);
+}
+.doc-jump-btn.doc-play-btn:hover { background: #ffeac0; }
+
+/* ─── 文档动效演示：宝箱仓库 ─── */
+.cv-score-strip.demo-cv-enter { animation: demo-cv-panel-in 0.62s ease-out both; }
+.cv-stage.demo-cv-enter { animation: demo-cv-panel-in 0.72s ease-out both; }
+.cv-tray.demo-cv-enter .cv-tray-slot { animation: demo-cv-tray-in 0.56s cubic-bezier(0.2, 0.82, 0.2, 1) both; }
+.cv-tray.demo-cv-enter .cv-tray-slot:nth-child(2) { animation-delay: 0.06s; }
+.cv-tray.demo-cv-enter .cv-tray-slot:nth-child(3) { animation-delay: 0.12s; }
+.cv-tray.demo-cv-enter .cv-tray-slot:nth-child(4) { animation-delay: 0.18s; }
+.cv-tray.demo-cv-enter .cv-tray-slot:nth-child(5) { animation-delay: 0.24s; }
+.cv-stage-chest.demo-cv-chest-in { animation: demo-cv-chest-in 0.72s cubic-bezier(0.22, 1.35, 0.32, 1) both; }
+.cv-stage-chest-wrap.demo-cv-idle .cv-stage-chest { animation: demo-cv-idle 1.35s ease-in-out 2; }
+.cv-stage-chest-wrap.demo-cv-idle .cv-chest-shadow { animation: demo-cv-shadow 1.35s ease-in-out 2; }
+.cv-stage-halo.demo-cv-halo { animation: demo-cv-halo 1.35s ease-in-out 2; }
+.cv-stage-arrow.demo-cv-arrow-left { animation: demo-cv-arrow-left 0.38s ease-out both; }
+.cv-stage-arrow.demo-cv-arrow-right { animation: demo-cv-arrow-right 0.38s ease-out both; }
+.cv-tray-slot.demo-cv-switch { animation: cv-tray-bump 0.42s ease-out; }
+.cv-score-cta.demo-cv-ready-once { animation: demo-cv-ready-once 0.78s ease-out, cv-cta-pulse 1.5s ease-in-out 0.78s infinite; }
+.cv-score-cta.demo-cv-notready { animation: demo-cv-shake 0.16s linear 2; }
+.cv-prob-overlay.demo-cv-prob-pop .cv-prob-card { animation: demo-cv-prob-pop 0.34s ease-out both; }
+.cv-prob-row.demo-cv-row-scan { animation: demo-cv-row-scan 0.9s ease-out both; }
+.cv-prob-row-new.demo-cv-new-once { animation: demo-cv-new-once 1.4s ease-in-out 1; }
+
+@keyframes demo-cv-panel-in {
+  0%   { transform: translateY(12px); opacity: 0; filter: brightness(0.92); }
+  100% { transform: translateY(0); opacity: 1; filter: brightness(1); }
+}
+@keyframes demo-cv-tray-in {
+  0%   { transform: translateY(18px) scale(0.94); opacity: 0; }
+  70%  { transform: translateY(-4px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes demo-cv-chest-in {
+  0%   { transform: scale(0.96); opacity: 0; filter: brightness(0.92); }
+  58%  { transform: scale(1.05); opacity: 1; filter: brightness(1.22) drop-shadow(0 0 18px rgba(255,210,100,0.55)); }
+  100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+}
+@keyframes demo-cv-idle {
+  0%,100% { transform: translateY(0); filter: drop-shadow(0 12px 22px rgba(0,0,0,0.24)); }
+  50%     { transform: translateY(-10px); filter: drop-shadow(0 18px 28px rgba(255,210,110,0.45)); }
+}
+@keyframes demo-cv-shadow {
+  0%,100% { transform: scaleX(1); opacity: 0.82; }
+  50%     { transform: scaleX(0.78); opacity: 0.48; }
+}
+@keyframes demo-cv-halo {
+  0%,100% { transform: scale(1); opacity: 0.75; }
+  50%     { transform: scale(1.08); opacity: 1; }
+}
+@keyframes demo-cv-arrow-left {
+  0%   { transform: translate(-12px,-50%); opacity: 0; }
+  100% { transform: translate(0,-50%); opacity: 1; }
+}
+@keyframes demo-cv-arrow-right {
+  0%   { transform: translate(12px,-50%); opacity: 0; }
+  100% { transform: translate(0,-50%); opacity: 1; }
+}
+@keyframes demo-cv-ready-once {
+  0%   { box-shadow: inset 0 -4px 8px rgba(70,52,8,0.22), 0 0 0 0 rgba(255,220,80,0); transform: scale(1); }
+  45%  { box-shadow: inset 0 -4px 8px rgba(70,52,8,0.22), 0 0 0 10px rgba(255,220,80,0.34); transform: scale(1.04); }
+  100% { box-shadow: inset 0 -4px 8px rgba(70,52,8,0.22), 0 0 0 0 rgba(255,220,80,0); transform: scale(1); }
+}
+@keyframes demo-cv-shake {
+  0%,100% { transform: translateX(0); }
+  25%     { transform: translateX(-4px); }
+  75%     { transform: translateX(4px); }
+}
+@keyframes demo-cv-prob-pop {
+  0%   { transform: translateY(18px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes demo-cv-row-scan {
+  0%   { box-shadow: inset 0 0 0 rgba(255,220,100,0); background: rgba(255,235,160,0); }
+  35%  { box-shadow: inset 280px 0 0 rgba(255,220,100,0.22); background: rgba(255,235,160,0.12); }
+  100% { box-shadow: inset 0 0 0 rgba(255,220,100,0); background: transparent; }
+}
+@keyframes demo-cv-new-once {
+  0%,100% { transform: scale(1); }
+  35%     { transform: scale(1.22); box-shadow: 0 0 12px rgba(255,90,40,0.95); }
+  70%     { transform: scale(0.96); }
+}
+
 /* ═══ 时间进度条（手机框下，拖拽切换阶段）═══ */
 .time-scrubber {
   width: 390px;
@@ -5339,12 +5432,82 @@ body.phase-preview .main-brief-rules { display: block; }
     </ul>
 
     <div class="doc-h3"><span>2.3 开启流程与动效</span></div>
-    <p class="doc-p">点击<span class="doc-hl">开启 X 个</span>（X = min(库存, 15)）后，进入<span class="doc-hl">全屏开箱层</span>：暗场背景 + 聚光锥 + 居中宝箱开启动画 + 数量角标，随后切换到<span class="doc-hl">恭喜获得</span>结果层（“奖励”金牌 + 卡片网格）。</p></p>
+    <p class="doc-p">点击<span class="doc-hl">开启 X 个</span>（X = min(库存, 15)）后，进入<span class="doc-hl">全屏开箱层</span>：暗场背景 + 聚光锥 + 居中宝箱开启动画 + 数量角标，随后切换到<span class="doc-hl">恭喜获得</span>结果层（“奖励”金牌 + 卡片网格）。</p>
     <ul class="doc-ul">
       <li>开启动画：渐显 → 聚光锥下降 → 宝箱微缩放 + 盖子上掀 + 火花飘出（约 1s）</li>
       <li>恭喜界面：奖励卡片按品质（普通 / 稀有 / 史诗 / 传说）配色，依次<span class="doc-hl">弹跳呈现</span></li>
       <li>底部按钮：<span class="doc-hl">再开 X 个</span>（同品质，库存 &gt; 0 才显示；X = min(剩余库存, 15)），点击空白处关闭恭喜界面</li>
       <li>若开启过程中达到积分阈值产出了奖励宝箱，奖励宝箱会<b>飞入对应品质槽位</b>入库，无需玩家额外确认</li>
+    </ul>
+
+    <hr class="doc-divider">
+
+    <a class="doc-anchor" id="doc-animation"></a>
+    <div class="doc-h2">
+      <span><span class="doc-section-num">三</span>动效需求</span>
+      <button class="doc-jump-btn" onclick="jumpTo('screen-chest')">↗ 跳转宝箱仓库</button>
+    </div>
+    <div class="doc-note blue">本章以最新《宝箱系统动效需求》为准，仅覆盖当前保留的宝箱仓库、开箱、积分兑换、奖励提升与概率说明动效。每个演示按钮均会重置动画状态，重复点击可再次播放。</div>
+
+    <div class="doc-h3"><span>3.1 宝箱仓库主界面动效</span></div>
+    <div class="doc-action-row">
+      <button class="doc-jump-btn" onclick="jumpTo('screen-chest')">↗ 相关界面</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestVaultEnter()">▶ 播放界面进入</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestIdleAnim()">▶ 播放宝箱待机</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestSwitchAnim()">▶ 播放品质切换</button>
+    </div>
+    <ul class="doc-ul">
+      <li><b>界面进入</b>：仓库背景与中央舞台淡入；中央宝箱从 96% 缩放至 100%；底部 5 个品质槽依次上浮；顶部积分条按当前进度填充，若已达到阈值则兑换按钮同步高亮。</li>
+      <li><b>中央宝箱待机</b>：有库存时宝箱保持轻微上下浮动，底部阴影反向缩放，光晕进行弱呼吸；无库存时切换为置灰空态，不播放强光。</li>
+      <li><b>品质切换</b>：左右箭头滑入提示可切换；点击底部品质槽时槽位缩放回弹，中央宝箱切换品质色；无库存品质淡出并显示空态。</li>
+    </ul>
+
+    <div class="doc-h3"><span>3.2 开启 X 个宝箱动效</span></div>
+    <div class="doc-action-row">
+      <button class="doc-jump-btn" onclick="jumpSceneLeft('chest-open')">↗ 开启动画层</button>
+      <button class="doc-jump-btn" onclick="jumpSceneLeft('chest-result')">↗ 恭喜获得层</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestOpenTimeline('blue')">▶ 播放开箱时间轴</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestOpenTimeline('orange')">▶ 播放高品质爆光</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestResultCards()">▶ 播放奖励卡片</button>
+    </div>
+    <ul class="doc-ul">
+      <li><b>开箱时间轴</b>：0ms 暗场压低环境亮度；120ms 聚光锥打下；250ms 宝箱轻震；450ms 锁扣弹开；650ms 盖子上掀并爆光；850ms 火花、金币、光粒飞散；1000ms 切入结果层。</li>
+      <li><b>品质差异</b>：木制以轻尘和小幅抖动为主；青铜增加金属火花；白银增加白色扫光；黄金增加金币飞散；钻石增加高亮闪白、彩色碎光和更强镜头反馈。</li>
+      <li><b>结果层奖励卡片</b>：标题牌先出现，奖励卡片按顺序弹跳呈现；高品质奖励卡出现时追加短暂闪白；按钮最后淡入。若本次开启获得积分，收下后积分粒子可飞回顶部积分条。</li>
+    </ul>
+
+    <div class="doc-h3"><span>3.3 积分获取与兑换动效</span></div>
+    <div class="doc-action-row">
+      <button class="doc-jump-btn" onclick="jumpTo('screen-chest')">↗ 积分条界面</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestPointFly()">▶ 播放积分飞入</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestExchangeClaim()">▶ 播放兑换飞入</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestExchangeNotReady()">▶ 播放未就绪反馈</button>
+    </div>
+    <ul class="doc-ul">
+      <li><b>积分飞入</b>：关闭结果层后，从中央宝箱位置飞出 3~6 个积分粒子并汇入顶部积分条；粒子到达后进度条增长，数字同步滚动。</li>
+      <li><b>达到阈值</b>：当积分达到兑换阈值时，兑换按钮亮起并出现黄绿色轻脉冲，红色提示点显示。</li>
+      <li><b>点击兑换</b>：按钮光环先收缩后爆开，进度条按消耗段扣减；奖励宝箱逐个从兑换按钮飞向底部对应品质槽，到达后槽位弹跳且数量 +1，多段兑换时连续飞出。</li>
+      <li><b>未就绪点击</b>：按钮左右轻晃约 160ms，并弹出“积分不足，无法兑换宝箱奖励”提示。</li>
+    </ul>
+
+    <div class="doc-h3"><span>3.4 宝箱奖励提升弹窗</span></div>
+    <div class="doc-action-row">
+      <button class="doc-jump-btn" onclick="jumpTo('screen-chest')">↗ 宝箱仓库</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestStageUp()">▶ 播放奖励提升</button>
+    </div>
+    <ul class="doc-ul">
+      <li>阶段切换完成旧宝箱结算后，弹出“宝箱奖励提升”弹窗；标题使用金色扫光，宝箱剪影点亮，背景光环向外扩散。</li>
+      <li>若新阶段有新增掉落物，应在提示文案中强调“新增物品已加入掉落池”；主按钮优先为“查看宝箱产出”，次按钮为“收下”。</li>
+    </ul>
+
+    <div class="doc-h3"><span>3.5 概率说明与 NEW 标识动效</span></div>
+    <div class="doc-action-row">
+      <button class="doc-jump-btn" onclick="jumpSceneLeft('chest-prob')">↗ 概率说明</button>
+      <button class="doc-jump-btn doc-play-btn" onclick="demoChestProbNew()">▶ 播放概率弹窗与 NEW</button>
+    </div>
+    <ul class="doc-ul">
+      <li>概率弹窗打开时，内容卡片整体上浮淡入；切换品质页签时，列表内容做 120~180ms 的淡入淡出。</li>
+      <li>NEW 标识以 1.4s 轻脉冲循环显示；高品质概率行可追加弱扫光，提示该阶段新增或重点掉落内容。</li>
     </ul>
 
   </div><!-- /doc-body -->
@@ -7709,6 +7872,20 @@ function jumpScene(key) {
   });
 }
 
+function jumpSceneLeft(key) {
+  var def = SCENE_MAP[key];
+  if (!def) return;
+  closeOpenOverlay(true);
+  closeCvProbModal();
+  document.querySelectorAll('.modal-overlay.active').forEach(function(o) { o.classList.remove('active'); });
+  if (refs.helpModalOverlay) refs.helpModalOverlay.classList.remove('active');
+  if (refs.rewardChestOverlay) refs.rewardChestOverlay.classList.remove('active');
+  def.run();
+  document.querySelectorAll('.scene-chip').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-scene') === key);
+  });
+}
+
 /* —— 主屏战场地图：单个都城点击逻辑由 renderMainMap 内部绑定（toast 提示）—— */
 
 /* —— 时间进度条：按阶段三等分（准备/战斗/领奖），从 04:00 起跨日到次日 04:00 —— */
@@ -7845,6 +8022,158 @@ function demoCvLevelup() {
     fromLevel: 6,
     toLevel: 7
   });
+}
+
+function replayChestClass(el, cls, duration) {
+  if (!el) return;
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+  if (duration) {
+    setTimeout(function() {
+      if (el) el.classList.remove(cls);
+    }, duration);
+  }
+}
+
+function closeChestDocDemoLayers() {
+  closeOpenOverlay(true);
+  closeCvProbModal();
+  var up = document.getElementById('cv-stageup-overlay');
+  if (up) up.classList.remove('active');
+}
+
+function demoChestVaultEnter() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  var scoreStrip = document.querySelector('#screen-chest .cv-score-strip');
+  var stage = document.querySelector('#screen-chest .cv-stage');
+  var tray = document.querySelector('#screen-chest .cv-tray');
+  replayChestClass(scoreStrip, 'demo-cv-enter', 760);
+  replayChestClass(stage, 'demo-cv-enter', 820);
+  replayChestClass(tray, 'demo-cv-enter', 980);
+  replayChestClass(refs.cvStageChest, 'demo-cv-chest-in', 820);
+  if (refs.cvScoreBarFill) {
+    refs.cvScoreBarFill.style.transition = 'none';
+    refs.cvScoreBarFill.style.width = '0%';
+    if (refs.cvScoreBarLabel) refs.cvScoreBarLabel.textContent = '0/10';
+    void refs.cvScoreBarFill.offsetWidth;
+    refs.cvScoreBarFill.style.transition = 'width 0.78s cubic-bezier(0.22, 0.7, 0.4, 1)';
+    refs.cvScoreBarFill.style.width = '72%';
+    if (refs.cvScoreBarLabel) refs.cvScoreBarLabel.textContent = '7/10';
+    setTimeout(function() {
+      refs.cvScoreBarFill.style.transition = '';
+      renderChestVaultScreen();
+    }, 950);
+  }
+}
+
+function demoChestIdleAnim() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  replayChestClass(document.querySelector('#screen-chest .cv-stage-chest-wrap'), 'demo-cv-idle', 2900);
+  replayChestClass(document.querySelector('#screen-chest .cv-stage-halo'), 'demo-cv-halo', 2900);
+}
+
+function demoChestSwitchAnim() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  cycleSelected(1);
+  replayChestClass(document.querySelector('#screen-chest .cv-stage-arrow-left'), 'demo-cv-arrow-left', 480);
+  replayChestClass(document.querySelector('#screen-chest .cv-stage-arrow-right'), 'demo-cv-arrow-right', 480);
+  replayChestClass(refs.cvStageChest, 'demo-cv-chest-in', 760);
+  var activeSlot = document.querySelector('#screen-chest .cv-tray-slot.active');
+  replayChestClass(activeSlot, 'demo-cv-switch', 520);
+}
+
+function demoChestOpenTimeline(type) {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  var t = type || 'blue';
+  openState.active = true;
+  openState.type = t;
+  openState.amount = 1;
+  openState.rewards = buildChestRewards(t, 1);
+  clearCvAnimTimers();
+  if (refs.cvOpenOverlay) {
+    refs.cvOpenOverlay.classList.remove('active', 'reveal');
+    void refs.cvOpenOverlay.offsetWidth;
+    clearQualityClasses(refs.cvOpenChest);
+    refs.cvOpenChest.classList.add('q-' + t);
+    refs.cvOpenCount.textContent = '×1';
+    refs.cvOpenOverlay.classList.add('active');
+    cvOpenAnimTimers.push(setTimeout(function() {
+      refs.cvOpenOverlay.classList.add('reveal');
+    }, 80));
+  }
+}
+
+function demoChestResultCards() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  demoCvResult();
+}
+
+function demoChestPointFly() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  chestState.cycleIndex = 1;
+  chestState.cyclePoints = 2;
+  flyPointsToScoreBar({ beforeIdx: 0, beforePts: 2, afterIdx: 1, afterPts: 2 });
+}
+
+function demoChestExchangeClaim() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  chestState.cycleIndex = 0;
+  chestState.cyclePoints = 100;
+  renderChestVaultScreen();
+  replayChestClass(refs.cvScoreCta, 'demo-cv-ready-once', 1400);
+  setTimeout(function() { claimCycleReward(); }, 180);
+}
+
+function demoChestExchangeNotReady() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  chestState.cycleIndex = 0;
+  chestState.cyclePoints = 0;
+  renderChestVaultScreen();
+  replayChestClass(refs.cvScoreCta, 'demo-cv-notready', 520);
+  if (typeof showToast === 'function') showToast('积分不足，无法兑换宝箱奖励');
+}
+
+function demoChestStageUp() {
+  showScreen('screen-chest');
+  closeChestDocDemoLayers();
+  var ov = document.getElementById('cv-stageup-overlay');
+  if (ov) {
+    ov.classList.remove('active');
+    void ov.offsetWidth;
+  }
+  showStageUpOverlay(4);
+}
+
+function demoChestProbNew() {
+  showScreen('screen-chest');
+  closeOpenOverlay(true);
+  var ov = refs.cvProbOverlay;
+  if (ov) {
+    ov.classList.remove('active', 'demo-cv-prob-pop');
+    void ov.offsetWidth;
+  }
+  chestSeason.day = 19;
+  chestSeason.dayAnchorMs = Date.now();
+  renderChestVaultScreen();
+  showCvProbModal('orange');
+  replayChestClass(refs.cvProbOverlay, 'demo-cv-prob-pop', 600);
+  setTimeout(function() {
+    var newTags = document.querySelectorAll('#cv-prob-list .cv-prob-row-new');
+    newTags.forEach(function(tag) {
+      replayChestClass(tag, 'demo-cv-new-once', 1450);
+      var row = tag.closest ? tag.closest('.cv-prob-row') : null;
+      replayChestClass(row, 'demo-cv-row-scan', 950);
+    });
+  }, 120);
 }
 
 /* ─── 倒计时 ─── */
