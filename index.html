@@ -4548,14 +4548,14 @@ body.phase-preview .main-brief-rules { display: block; }
         </div>
       </div>
 
-      <!-- 进入下一阶段前的剩余时间；阶段切换时会弹出"上一阶段剩余宝箱"结算弹窗 -->
+      <!-- 进入下一阶段前的剩余时间；阶段切换时会弹出旧阶段待领取奖励结算弹窗 -->
       <div class="cv-stage-autoopen" id="cv-stage-autoopen">
         <span class="cv-stage-autoopen-cd" id="cv-stage-autoopen-cd">--天 00:00:00</span>
-        <span class="cv-stage-autoopen-text">后自动开启</span>
+        <span class="cv-stage-autoopen-text">后阶段结算</span>
         <button class="cv-stage-autoopen-info" type="button" aria-label="查看详情" onclick="toggleAutoOpenTip(event)">!</button>
         <div class="cv-stage-autoopen-tip" id="cv-stage-autoopen-tip">
-          <div>进入下一阶段时，仓库中所有宝箱会弹窗结算</div>
-          <div>积分会自动结算成奖励宝箱</div>
+          <div>阶段切换按赛季天数触发，新赛季开始也视作一次阶段切换</div>
+          <div>旧阶段宝箱会先递归结算积分奖励，再弹窗要求全部领取</div>
         </div>
       </div>
 
@@ -4687,8 +4687,8 @@ body.phase-preview .main-brief-rules { display: block; }
           <div class="cv-prob-summary" id="cv-prob-summary" style="display:none"></div>
           <div class="cv-prob-list" id="cv-prob-list"></div>
           <div class="cv-prob-footnote" id="cv-prob-footnote">
-            <span id="cv-prob-season-cd">--天 00:00:00</span> 后自动开启。<br>
-            进入下一阶段时仓库中所有宝箱会弹窗结算；积分会自动结算成奖励宝箱。
+            <span id="cv-prob-season-cd">--天 00:00:00</span> 后进入下一阶段结算。<br>
+            阶段切换时旧阶段宝箱会先完成积分递归结算，玩家需在弹窗中全部领取。
           </div>
         </div>
       </div>
@@ -4698,10 +4698,10 @@ body.phase-preview .main-brief-rules { display: block; }
     <div class="cv-stagetrans-overlay" id="cv-stagetrans-overlay">
       <div class="cv-stagetrans-vignette"></div>
       <div class="cv-stagetrans-card">
-        <div class="cv-stagetrans-title">以下宝箱已过期，将自动开启</div>
-        <div class="cv-stagetrans-sub">已自动计算积分奖励宝箱</div>
+        <div class="cv-stagetrans-title">旧阶段宝箱奖励待领取</div>
+        <div class="cv-stagetrans-sub">已完成积分递归结算，领取后解锁新阶段奖励</div>
         <div class="cv-stagetrans-grid" id="cv-stagetrans-grid"></div>
-        <button class="cv-stagetrans-btn" onclick="cvStageTransOpenAll()">全部打开</button>
+        <button class="cv-stagetrans-btn" onclick="cvStageTransOpenAll()">全部领取</button>
       </div>
     </div>
 
@@ -5416,19 +5416,24 @@ body.phase-preview .main-brief-rules { display: block; }
       <li><b>对玩家透明</b>：玩家界面不展示阶段品质配置等数值细节，仅在<b>宝箱奖励概率界面</b>中看到本阶段已开放的物品；该阶段相比上一阶段新增的物品会带 <span style="display:inline-block;padding:0 4px;border-radius:3px;background:#d23a10;color:#fff;font-size:10px;font-weight:900;">NEW</span> 标识（第 1 阶段不显示）</li>
     </ul>
 
-    <div class="doc-h4-sub" style="margin:14px 0 4px;font-weight:bold;color:#5a3800;">三、阶段切换流程（弹窗结算 → 全部打开 → 奖励提升）</div>
-    <p class="doc-p">赛季天数到达<b>下一阶段起始日</b>时，按以下顺序触发完整流程，<b>玩家必须主动点击"全部打开"完成开启</b>，结算流程不会被跳过：</p>
+    <div class="doc-h4-sub" style="margin:14px 0 4px;font-weight:bold;color:#5a3800;">三、阶段切换流程（自动结算 → 强制领取 → 奖励提升）</div>
+    <p class="doc-p">阶段切换以<b>赛季天数</b>为判断依据：赛季天数到达下一阶段起始日时触发；<b>新赛季开始</b>也视作一次阶段切换。若赛季中期因配置调整导致宝箱奖励配置<b>回退 1~2 个阶段</b>，同样按正常阶段切换流程处理。</p>
     <ol class="doc-ul" style="list-style:decimal;padding-left:20px;">
-      <li><b>积分自动结算</b>：仓库内当前未消费的<b>循环积分</b>按上一阶段的循环品质配置一次性兑换为奖励宝箱，直接入库</li>
-      <li><b>剩余宝箱弹窗</b>：自动弹出"<b>上一阶段剩余这些宝箱 / 已自动计算宝箱积分奖励</b>"弹窗，按 5 个品质显示当前库存数量；底部仅 <b>"全部打开"</b> 一个按钮</li>
-      <li><b>正常开箱流程</b>：玩家点击"全部打开"后，<b>从最高品质往最低品质</b>依次进入正常开箱动效与恭喜界面（每批最多 15 个，自动续到下一批）；该批次开启<b>不再获得循环积分</b>（已计入弹窗第 1 步）</li>
-      <li><b>宝箱奖励提升弹窗</b>：所有旧宝箱开启完毕后弹出"<b>宝箱奖励提升</b>"弹窗：宝箱图标 + 提升光环动效 + "<b>查看宝箱产出</b>" / "收下" 两个按钮。点击"查看宝箱产出"打开<b>宝箱奖励概率界面</b>，本阶段新增物品带 NEW 标识</li>
+      <li><b>服务器先自动计算全部旧阶段奖励</b>：
+        <ol style="list-style:lower-alpha;padding-left:18px;margin-top:6px;">
+          <li>先计算当前所有宝箱可提供的积分，并按待结算阶段的循环品质配置兑换出积分奖励宝箱；新兑换出的奖励宝箱继续参与积分计算并继续兑换，直到不能获得更多宝箱为止。服务器记录结算完成后的<b>各品质宝箱总数</b>。</li>
+          <li>再开启包含上一步新增宝箱在内的所有旧阶段宝箱；该开启过程<b>不会再次重复结算宝箱积分</b>，服务器记录玩家最终可获得的全部道具奖励。</li>
+        </ol>
+      </li>
+      <li><b>玩家进入宝箱仓库时必须领取旧阶段奖励</b>：新阶段开始后，宝箱仓库一定弹出旧阶段结算界面；界面显示的各品质宝箱数量，即为服务器在上一步记录的宝箱总数。玩家必须点击<b>“全部领取”</b>获得记录的全部奖励后，才能关闭该界面并领取新阶段奖励；未领取旧阶段奖励前，玩家无法领取新阶段奖励。</li>
+      <li><b>多阶段未领取时合并处理</b>：若多个阶段的宝箱奖励都未领取，服务器将各阶段记录的同品质宝箱数量加和显示。例如阶段 1 记录 20 个橙色宝箱，阶段 2 记录 15 个橙色宝箱且仍未领取，则阶段 3 弹窗显示 35 个橙色宝箱；各阶段记录的奖励也同步加和，点击<b>“全部领取”</b>时一次性发放所有记录奖励。</li>
+      <li><b>宝箱奖励提升弹窗</b>：旧阶段奖励领取完成后弹出“<b>宝箱奖励提升</b>”弹窗：宝箱图标 + 提升光环动效 + “<b>查看宝箱产出</b>” / “收下”两个按钮。点击“查看宝箱产出”打开<b>宝箱奖励概率界面</b>，本阶段新增物品带 NEW 标识。</li>
     </ol>
 
     <div class="doc-h4-sub" style="margin:14px 0 4px;font-weight:bold;color:#5a3800;">四、赛季重置</div>
     <ul class="doc-ul">
-      <li><b>新赛季重置</b>：赛季切换时<b>清空仓库中所有宝箱</b>、<b>重置积分与循环段位</b>；如赛季最后一阶段结束时仓库仍有未开启宝箱，仍按上述流程<b>弹窗 + 全部打开</b>结算，避免直接邮件遗漏</li>
-      <li><b>未领取赛季宝箱（兜底）</b>：若玩家长期未上线，赛季结束时仓库中未开启的宝箱会<b>自动开启</b>，奖励以邮件形式补发（概率页脚注同步展示赛季倒计时）</li>
+      <li><b>新赛季开始</b>：新赛季开始视作一次阶段切换，先按上文阶段切换流程结算旧赛季最后阶段的宝箱奖励，并要求玩家在宝箱仓库中点击<b>“全部领取”</b>。</li>
+      <li><b>赛季中期配置回退</b>：赛季中期若因运营或数值调整导致宝箱奖励配置回退 1~2 个阶段，不做特殊跳过，仍视为一次正常阶段切换，并按上文流程生成旧配置奖励记录与强制领取弹窗。</li>
     </ul>
 
     <div class="doc-h3"><span>2.3 开启流程与动效</span></div>
