@@ -4711,8 +4711,6 @@ body.phase-preview .main-brief-rules { display: block; }
       <div class="cv-stageup-card">
         <div class="cv-stageup-rays"></div>
         <div class="cv-stageup-tag">宝箱奖励提升</div>
-        <div class="cv-stageup-title" id="cv-stageup-title">阶段 2 已开启</div>
-        <div class="cv-stageup-sub">奖励宝箱品质升级，新物品已加入掉落池</div>
         <div class="cv-stageup-chest-wrap">
           <div class="cv-stageup-chest q-orange" id="cv-stageup-chest">
             <div class="cv-chest-art"></div>
@@ -5403,8 +5401,8 @@ body.phase-preview .main-brief-rules { display: block; }
         / 钻石 <span class="doc-tentative" title="演示值，最终以数值配置为准">+50</span></li>
       <li><b>阈值循环</b>（数值侧概念，不外露给玩家）：兑换时按顺序消费若干段阈值（<b>段数与阈值均由数值配置</b>），每消费一段产出 1 个奖励宝箱；走完所有段后回到第 1 段循环。演示值（共 5 段）：
         <span class="doc-tentative" title="演示值，最终以数值配置为准">10 → 20 → 30 → 40 → 60</span></li>
-      <li><b>积分注入规则</b>：积分注入进度条时，即使超过当前段阈值也<b>不会自动扣除或进入下一段</b>；进度条<b>保持满状态</b>并显示当前值/需求值（例：100/10）。仅当玩家点击<b>兑换宝箱按钮</b>时，一次性消费所有可消费的积分并产出对应数量的奖励宝箱（例：100 积分从第 1 段起 → 消费 10+20+30+40 = 100，产出 4 个奖励宝箱，进度重置为第 5 段 0/60）</li>
-      <li><b>兑换动效</b>：点击后多个奖励宝箱<b>逐个从按钮位置飞到底部对应品质槽位</b>，到达后该槽位数量 +1，同时顶部进度条逐步从“满”回退到剩余状态。不再弹出奖励庆祝弹窗，也不需要“收下”按钮。</li>
+      <li><b>积分注入规则</b>：积分注入进度条时，即使超过当前段阈值也<b>不会自动扣除或进入下一段</b>；进度条<b>保持满状态</b>并显示当前值/需求值（例：当前段上限 20，已有 2 分，本次获得 160 分，则显示 162/20）。仅当玩家点击<b>兑换宝箱按钮</b>时，一次性消费所有可消费的积分并产出对应数量的奖励宝箱。</li>
+      <li><b>兑换动效</b>：点击后多个奖励宝箱<b>逐个从按钮位置飞到底部对应品质槽位</b>，到达后该槽位数量 +1；顶部进度条从满条下降到扣减后的剩余积分状态，并显示“剩余积分 / 当前剩余段阈值”（例：12/20 或 12/30）。不再弹出奖励庆祝弹窗，也不需要“收下”按钮。</li>
       <li><b>未就绪点击</b>：按钮置灰状态下点击兑换按钮弹出 toast：“积分不足，无法兑换宝箱奖励”</li>
       <li><b>奖励宝箱品质</b>：兑换产出的宝箱品质由当前<b>赛季阶段</b>决定（数值配置，不外露给玩家），与玩家实际开启的宝箱品质<b>无关</b></li>
     </ul>
@@ -5489,9 +5487,9 @@ body.phase-preview .main-brief-rules { display: block; }
       <button class="doc-jump-btn doc-play-btn" onclick="demoChestExchangeNotReady()">▶ 播放未就绪反馈</button>
     </div>
     <ul class="doc-ul">
-      <li><b>积分飞入</b>：关闭结果层后，从中央宝箱位置飞出 3~6 个积分粒子并汇入顶部积分条；粒子到达后进度条增长，数字同步滚动。</li>
+      <li><b>积分飞入</b>：关闭结果层后，从中央宝箱位置飞出 3~6 个积分粒子并汇入顶部积分条；进度条只按<b>当前段阈值</b>表现增长，达到当前段上限后保持满条，不自动扣减、不自动跳到下一段。例：当前段上限 20、当前 2 分，本次获得 160 分，则进度条从 2/20 增长到满条并停留，数字显示为 <b>162/20</b>。</li>
       <li><b>达到阈值</b>：当积分达到兑换阈值时，兑换按钮亮起并出现黄绿色轻脉冲，红色提示点显示。</li>
-      <li><b>点击兑换</b>：按钮光环先收缩后爆开，进度条按消耗段扣减；奖励宝箱逐个从兑换按钮飞向底部对应品质槽，到达后槽位弹跳且数量 +1，多段兑换时连续飞出。</li>
+      <li><b>点击兑换</b>：系统一次性计算可兑换的奖励宝箱并逐个从兑换按钮飞向底部对应品质槽；宝箱飞行过程中数字连续降低，只要剩余积分仍不低于当前段需求，进度条就保持满条；最后积分不足时，进度条才连贯下降一次到目标进度。最终数字显示为 <b>剩余积分 / 当前剩余段阈值</b>，例如 12/20 或 12/30。</li>
       <li><b>未就绪点击</b>：按钮左右轻晃约 160ms，并弹出“积分不足，无法兑换宝箱奖励”提示。</li>
     </ul>
 
@@ -5502,7 +5500,7 @@ body.phase-preview .main-brief-rules { display: block; }
     </div>
     <ul class="doc-ul">
       <li>阶段切换完成旧宝箱结算后，弹出“宝箱奖励提升”弹窗；标题使用金色扫光，宝箱剪影点亮，背景光环向外扩散。</li>
-      <li>若新阶段有新增掉落物，应在提示文案中强调“新增物品已加入掉落池”；主按钮优先为“查看宝箱产出”，次按钮为“收下”。</li>
+      <li>弹窗不展示阶段编号或说明文案，只保留“宝箱奖励提升”标签、对应品质宝箱视觉和“查看宝箱产出”按钮。</li>
     </ul>
 
     <div class="doc-h3"><span>3.5 概率说明与 NEW 标识动效</span></div>
@@ -6180,6 +6178,9 @@ function claimCycleReward() {
   var simPts = chestState.cyclePoints;
   while (simPts >= CYCLE_THRESHOLDS[simIdx]) {
     queue.push({
+      idxBefore: simIdx,
+      ptsBefore: simPts,
+      thrBefore: CYCLE_THRESHOLDS[simIdx],
       quality: getCycleQuality(simIdx),
       ptsAfter: simPts - CYCLE_THRESHOLDS[simIdx],
       idxAfter: (simIdx + 1) % 5,
@@ -6194,36 +6195,54 @@ function claimCycleReward() {
   // CTA 本身取消 ready，但进度条文本仍需逐步动画 → 不调 renderChestVaultScreen
   if (refs.cvScoreCta) refs.cvScoreCta.classList.remove('ready');
   if (refs.cvScoreCtaFlag) refs.cvScoreCtaFlag.style.display = 'none';
+  if (refs.cvScoreBarFill) refs.cvScoreBarFill.style.width = '100%';
   flyClaimQueue(queue, 0);
 }
 
 function flyClaimQueue(queue, idx) {
-  if (idx >= queue.length) {
+  idx = idx || 0;
+  if (!queue || idx >= queue.length) {
     renderChestVaultScreen();
     return;
   }
-  var item = queue[idx];
-  flyChestFromCtaToTray(item.quality, function() {
-    chestInventory[item.quality] = Math.min(999, (chestInventory[item.quality] || 0) + 1);
-    // 逐步更新进度条为当前项消费后的状态
-    var thr = item.thrAfter;
-    var pts = item.ptsAfter;
-    var pct = Math.min(100, pts / thr * 100);
-    if (refs.cvScoreBarFill) refs.cvScoreBarFill.style.width = pct + '%';
-    if (refs.cvScoreBarLabel) refs.cvScoreBarLabel.textContent = pts + '/' + thr;
-    // 底部槽位计数同步刷新
-    refs.cvTraySlots.forEach(function(slot) {
-      var slotType = slot.getAttribute('data-cv-type');
-      var slotCount = chestInventory[slotType] || 0;
-      var cntEl = slot.querySelector('.cv-tray-count');
-      if (cntEl) cntEl.textContent = '×' + formatNumber(slotCount);
-      var flag = slot.querySelector('.cv-tray-flag');
-      if (flag) flag.style.display = slotCount > 0 ? 'flex' : 'none';
-      slot.classList.toggle('empty', slotCount === 0);
-    });
+  var gap = 260;
+  for (var i = idx; i < queue.length; i++) {
+    (function(item, order) {
+      setTimeout(function() {
+        animateClaimScoreStep(item);
+        flyChestFromCtaToTray(item.quality, function() {
+          addClaimedChestToTray(item.quality);
+        });
+      }, order * gap);
+    })(queue[i], i - idx);
+  }
+  setTimeout(function() {
+    renderChestVaultScreen();
+  }, (queue.length - idx - 1) * gap + 650);
+}
+
+function addClaimedChestToTray(quality) {
+  chestInventory[quality] = Math.min(999, (chestInventory[quality] || 0) + 1);
+  refs.cvTraySlots.forEach(function(slot) {
+    var slotType = slot.getAttribute('data-cv-type');
+    var slotCount = chestInventory[slotType] || 0;
+    var cntEl = slot.querySelector('.cv-tray-count');
+    if (cntEl) cntEl.textContent = '×' + formatNumber(slotCount);
+    var flag = slot.querySelector('.cv-tray-flag');
+    if (flag) flag.style.display = slotCount > 0 ? 'flex' : 'none';
+    slot.classList.toggle('empty', slotCount === 0);
   });
-  // 间隔尽量短，确保 10+ 个宝箱可在短时间内连续飞出
-  setTimeout(function() { flyClaimQueue(queue, idx + 1); }, 70);
+}
+
+function animateClaimScoreStep(item) {
+  var pts = item.ptsAfter;
+  var thr = item.thrAfter;
+  if (refs.cvScoreBarFill && pts < thr) {
+    refs.cvScoreBarFill.style.width = (pts / thr * 100) + '%';
+  } else if (refs.cvScoreBarFill) {
+    refs.cvScoreBarFill.style.width = '100%';
+  }
+  animateNumberLabel(item.ptsBefore, pts, thr, 220);
 }
 
 function flyChestFromCtaToTray(quality, onArrive) {
@@ -6544,8 +6563,6 @@ function stageTransAfterBatch() {
 function showStageUpOverlay(stageIdx) {
   var ov = document.getElementById('cv-stageup-overlay');
   if (!ov) return;
-  var titleEl = document.getElementById('cv-stageup-title');
-  if (titleEl) titleEl.textContent = '阶段 ' + (stageIdx + 1) + ' 已开启';
   // 用本阶段最高品质染色
   var stage = STAGE_CONFIG[stageIdx] || STAGE_CONFIG[0];
   var top = stage.qualities[stage.qualities.length - 1] || 'orange';
@@ -6752,8 +6769,8 @@ function animateScoreBarTo(bIdx, bPts, aIdx, aPts) {
   var bThr = CYCLE_THRESHOLDS[bIdx];
   var aThr = CYCLE_THRESHOLDS[aIdx];
   if (aIdx === bIdx) {
-    // 同段：直接增长
-    refs.cvScoreBarFill.style.width = (aPts / aThr * 100) + '%';
+    // 同段：直接增长；若超过当前段阈值，视觉保持满条，数字显示累计值/当前阈值
+    refs.cvScoreBarFill.style.width = Math.min(100, aPts / aThr * 100) + '%';
     animateNumberLabel(bPts, aPts, aThr, 600, function() {
       renderChestVaultScreen();   // 同步 CTA、实际状态
     });
@@ -8123,17 +8140,16 @@ function demoChestPointFly() {
   showScreen('screen-chest');
   closeChestDocDemoLayers();
   chestState.cycleIndex = 1;
-  chestState.cyclePoints = 2;
-  flyPointsToScoreBar({ beforeIdx: 0, beforePts: 2, afterIdx: 1, afterPts: 2 });
+  chestState.cyclePoints = 162;
+  flyPointsToScoreBar({ beforeIdx: 1, beforePts: 2, afterIdx: 1, afterPts: 162 });
 }
 
 function demoChestExchangeClaim() {
   showScreen('screen-chest');
   closeChestDocDemoLayers();
-  chestState.cycleIndex = 0;
-  chestState.cyclePoints = 100;
+  chestState.cycleIndex = 1;
+  chestState.cyclePoints = 172;
   renderChestVaultScreen();
-  replayChestClass(refs.cvScoreCta, 'demo-cv-ready-once', 1400);
   setTimeout(function() { claimCycleReward(); }, 180);
 }
 
